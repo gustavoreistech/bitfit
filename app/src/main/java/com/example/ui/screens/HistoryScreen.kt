@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.DirectionsRun
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.FitnessCenter
+import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Storage
@@ -128,13 +129,15 @@ fun HistoryScreen(
 
     val filteredList = when (filter) {
         "RUN" -> allWorkouts.filter { it.type == "RUN" }
-        "CALISTHENICS" -> allWorkouts.filter { it.type == "CALISTHENICS" }
+        "HIIT" -> allWorkouts.filter { it.type == "HIIT" || it.type == "CALISTHENICS" }
+        "ELASTIC" -> allWorkouts.filter { it.type == "ELASTIC" }
         else -> allWorkouts
     }
 
     val totalCount = allWorkouts.size
     val runCount = allWorkouts.count { it.type == "RUN" }
-    val calisCount = allWorkouts.count { it.type == "CALISTHENICS" }
+    val hiitCount = allWorkouts.count { it.type == "HIIT" || it.type == "CALISTHENICS" }
+    val elasticCount = allWorkouts.count { it.type == "ELASTIC" }
 
     val totalDistanceMeters = allWorkouts.filter { it.type == "RUN" }.sumOf { it.distanceMeters }
     val totalCalories = allWorkouts.sumOf { it.calories }
@@ -142,7 +145,8 @@ fun HistoryScreen(
         if (it.runningSeconds > 0 || it.walkingSeconds > 0) it.runningSeconds else it.durationSeconds
     }
     val totalWalkingSec = allWorkouts.filter { it.type == "RUN" }.sumOf { it.walkingSeconds }
-    val totalCalisExercisesDone = allWorkouts.filter { it.type == "CALISTHENICS" }.sumOf { it.exercisesCount }
+    val totalHiitExercisesDone = allWorkouts.filter { it.type == "HIIT" || it.type == "CALISTHENICS" }.sumOf { it.exercisesCount }
+    val totalElasticExercisesDone = allWorkouts.filter { it.type == "ELASTIC" }.sumOf { it.exercisesCount }
 
     // Real Weekly Frequency Bar Data (last 7 days)
     val now = System.currentTimeMillis()
@@ -162,7 +166,8 @@ fun HistoryScreen(
     ) {
         BitFitTopAppBar(
             title = "BITFIT",
-            subtitle = "RELATÓRIOS REAIS & BACKUP"
+            subtitle = "RELATÓRIOS REAIS & BACKUP",
+            onTuneClick = { onNavigate(AppScreen.GOALS) }
         )
 
         Column(
@@ -269,7 +274,7 @@ fun HistoryScreen(
                 }
             }
 
-            // Resumo Acumulado de Modalidades: 🏃 Correndo vs 🚶 Caminhando & 💪 Calistenia
+            // Resumo Acumulado de Modalidades: 🏃 Correndo/Caminhando, 🔥 HIIT & 💪 Elástico
             GlassCard(
                 modifier = Modifier.fillMaxWidth(),
                 cornerRadius = 18.dp,
@@ -300,7 +305,7 @@ fun HistoryScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "MAPEAMENTO ACUMULADO DE MODALIDADES",
+                            text = "MAPEAMENTO ACUMULADO DOS 3 MÓDULOS",
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
                             color = SecondaryCyan,
@@ -314,7 +319,7 @@ fun HistoryScreen(
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Column(
                             modifier = Modifier
@@ -322,24 +327,24 @@ fun HistoryScreen(
                                 .clip(RoundedCornerShape(12.dp))
                                 .background(Color(0xFF10B981).copy(alpha = 0.12f))
                                 .border(1.dp, Color(0xFF10B981).copy(alpha = 0.35f), RoundedCornerShape(12.dp))
-                                .padding(10.dp),
+                                .padding(8.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "🏃 CORRENDO",
-                                fontSize = 9.sp,
+                                text = "🏃 CORRIDA",
+                                fontSize = 8.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF10B981)
                             )
                             Text(
                                 text = String.format(Locale.US, "%02d:%02d", totalRunningSec / 60, totalRunningSec % 60),
-                                fontSize = 16.sp,
+                                fontSize = 14.sp,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = OnSurface
                             )
                             Text(
-                                text = "$runPctTotal% do tempo GPS",
-                                fontSize = 9.sp,
+                                text = "$runPctTotal% GPS",
+                                fontSize = 8.sp,
                                 color = OnSurfaceVariant
                             )
                         }
@@ -350,24 +355,24 @@ fun HistoryScreen(
                                 .clip(RoundedCornerShape(12.dp))
                                 .background(Color(0xFFF59E0B).copy(alpha = 0.12f))
                                 .border(1.dp, Color(0xFFF59E0B).copy(alpha = 0.35f), RoundedCornerShape(12.dp))
-                                .padding(10.dp),
+                                .padding(8.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "🚶 CAMINHANDO",
-                                fontSize = 9.sp,
+                                text = "🚶 CAMINHADA",
+                                fontSize = 8.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFFF59E0B)
                             )
                             Text(
                                 text = String.format(Locale.US, "%02d:%02d", totalWalkingSec / 60, totalWalkingSec % 60),
-                                fontSize = 16.sp,
+                                fontSize = 14.sp,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = OnSurface
                             )
                             Text(
-                                text = "$walkPctTotal% do tempo GPS",
-                                fontSize = 9.sp,
+                                text = "$walkPctTotal% GPS",
+                                fontSize = 8.sp,
                                 color = OnSurfaceVariant
                             )
                         }
@@ -378,24 +383,52 @@ fun HistoryScreen(
                                 .clip(RoundedCornerShape(12.dp))
                                 .background(TertiaryOrange.copy(alpha = 0.12f))
                                 .border(1.dp, TertiaryOrange.copy(alpha = 0.35f), RoundedCornerShape(12.dp))
-                                .padding(10.dp),
+                                .padding(8.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "💪 CALISTENIA",
-                                fontSize = 9.sp,
+                                text = "🔥 HIIT",
+                                fontSize = 8.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = TertiaryOrange
                             )
                             Text(
-                                text = "$totalCalisExercisesDone",
-                                fontSize = 16.sp,
+                                text = "$totalHiitExercisesDone",
+                                fontSize = 14.sp,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = OnSurface
                             )
                             Text(
-                                text = "exercícios feitos",
-                                fontSize = 9.sp,
+                                text = "$hiitCount sessões",
+                                fontSize = 8.sp,
+                                color = OnSurfaceVariant
+                            )
+                        }
+
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(SecondaryCyan.copy(alpha = 0.12f))
+                                .border(1.dp, SecondaryCyan.copy(alpha = 0.35f), RoundedCornerShape(12.dp))
+                                .padding(8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "💪 ELÁSTICO",
+                                fontSize = 8.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = SecondaryCyan
+                            )
+                            Text(
+                                text = "$totalElasticExercisesDone",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = OnSurface
+                            )
+                            Text(
+                                text = "$elasticCount sessões",
+                                fontSize = 8.sp,
                                 color = OnSurfaceVariant
                             )
                         }
@@ -426,10 +459,10 @@ fun HistoryScreen(
                 }
             }
 
-            // Filter Chips Bar (Todos, Corridas, Calistenia)
+            // Filter Chips Bar (Todos, Corridas, HIIT, Elástico)
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 val isAll = filter == "ALL"
                 Box(
@@ -443,7 +476,7 @@ fun HistoryScreen(
                 ) {
                     Text(
                         text = "Todos ($totalCount)",
-                        fontSize = 12.sp,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         color = if (isAll) Color.Black else OnSurfaceVariant
                     )
@@ -452,7 +485,7 @@ fun HistoryScreen(
                 val isRun = filter == "RUN"
                 Box(
                     modifier = Modifier
-                        .weight(1.1f)
+                        .weight(1f)
                         .clip(RoundedCornerShape(20.dp))
                         .background(if (isRun) SecondaryCyan else SurfaceContainerHigh)
                         .clickable { viewModel.setHistoryFilter("RUN") }
@@ -464,25 +497,52 @@ fun HistoryScreen(
                             imageVector = Icons.Default.DirectionsRun,
                             contentDescription = null,
                             tint = if (isRun) Color.Black else SecondaryCyan,
-                            modifier = Modifier.size(14.dp)
+                            modifier = Modifier.size(13.dp)
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
+                        Spacer(modifier = Modifier.width(3.dp))
                         Text(
                             text = "Corridas ($runCount)",
-                            fontSize = 12.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
                             color = if (isRun) Color.Black else OnSurfaceVariant
                         )
                     }
                 }
 
-                val isCalis = filter == "CALISTHENICS"
+                val isHiit = filter == "HIIT"
                 Box(
                     modifier = Modifier
-                        .weight(1.2f)
+                        .weight(0.95f)
                         .clip(RoundedCornerShape(20.dp))
-                        .background(if (isCalis) TertiaryOrange else SurfaceContainerHigh)
-                        .clickable { viewModel.setHistoryFilter("CALISTHENICS") }
+                        .background(if (isHiit) TertiaryOrange else SurfaceContainerHigh)
+                        .clickable { viewModel.setHistoryFilter("HIIT") }
+                        .padding(vertical = 10.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.LocalFireDepartment,
+                            contentDescription = null,
+                            tint = if (isHiit) Color.Black else TertiaryOrange,
+                            modifier = Modifier.size(13.dp)
+                        )
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text(
+                            text = "HIIT ($hiitCount)",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isHiit) Color.Black else OnSurfaceVariant
+                        )
+                    }
+                }
+
+                val isElastic = filter == "ELASTIC"
+                Box(
+                    modifier = Modifier
+                        .weight(1.05f)
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(if (isElastic) PrimaryNeon else SurfaceContainerHigh)
+                        .clickable { viewModel.setHistoryFilter("ELASTIC") }
                         .padding(vertical = 10.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -490,15 +550,15 @@ fun HistoryScreen(
                         Icon(
                             imageVector = Icons.Default.FitnessCenter,
                             contentDescription = null,
-                            tint = if (isCalis) Color.Black else TertiaryOrange,
-                            modifier = Modifier.size(14.dp)
+                            tint = if (isElastic) Color.Black else PrimaryNeon,
+                            modifier = Modifier.size(13.dp)
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
+                        Spacer(modifier = Modifier.width(3.dp))
                         Text(
-                            text = "Calistenia ($calisCount)",
-                            fontSize = 12.sp,
+                            text = "Elástico ($elasticCount)",
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (isCalis) Color.Black else OnSurfaceVariant
+                            color = if (isElastic) Color.Black else OnSurfaceVariant
                         )
                     }
                 }
@@ -644,88 +704,7 @@ fun HistoryScreen(
                     )
                 }
 
-                if (filteredList.isEmpty()) {
-                    GlassCard(
-                        modifier = Modifier.fillMaxWidth(),
-                        cornerRadius = 16.dp
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(20.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Text(
-                                text = "Nenhum treino registrado ainda",
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = OnSurface
-                            )
-                            Text(
-                                text = "Seus relatórios estão 100% limpos e prontos. Assim que você finalizar uma Corrida/Caminhada GPS ou sessão de Calistenia, ela aparecerá aqui mapeada por dia e por fase!",
-                                fontSize = 12.sp,
-                                color = OnSurfaceVariant
-                            )
-                        }
-                    }
-                }
-
-                groupedByDay.forEach { (dayHeader, dayWorkouts) ->
-                    val dayTotalSec = dayWorkouts.sumOf { it.durationSeconds }
-                    val dayTotalMin = (dayTotalSec / 60).coerceAtLeast(1)
-                    val dayTotalKcal = dayWorkouts.sumOf { it.calories }
-                    val hasRunInDay = dayWorkouts.any { it.type == "RUN" }
-                    val hasCalisInDay = dayWorkouts.any { it.type == "CALISTHENICS" }
-                    val dayModalitiesLabel = buildList {
-                        if (hasRunInDay) add("🏃 Corrida/Caminhada")
-                        if (hasCalisInDay) add("💪 Calistenia")
-                    }.joinToString(" + ")
-
-                    // Cabeçalho do Dia (Resumo Diário)
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(SurfaceContainerHigh)
-                            .border(1.dp, OutlineVariant.copy(alpha = 0.35f), RoundedCornerShape(12.dp))
-                            .padding(horizontal = 12.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column {
-                            Text(
-                                text = dayHeader,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.ExtraBold,
-                                color = PrimaryNeon
-                            )
-                            Text(
-                                text = "${dayWorkouts.size} treino(s) • $dayModalitiesLabel",
-                                fontSize = 10.sp,
-                                color = OnSurfaceVariant
-                            )
-                        }
-
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            NeonBadge(
-                                text = "${dayTotalMin} min",
-                                color = SecondaryCyan
-                            )
-                            NeonBadge(
-                                text = "$dayTotalKcal kcal",
-                                color = TertiaryOrange
-                            )
-                        }
-                    }
-
-                    dayWorkouts.forEach { workout ->
-                        val isRun = workout.type == "RUN"
-                        val iconColor = if (isRun) SecondaryCyan else TertiaryOrange
-
+                    if (filteredList.isEmpty()) {
                         GlassCard(
                             modifier = Modifier.fillMaxWidth(),
                             cornerRadius = 16.dp
@@ -733,326 +712,480 @@ fun HistoryScreen(
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(16.dp),
-                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                                    .padding(20.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
+                                Text(
+                                    text = "Nenhum treino registrado ainda",
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = OnSurface
+                                )
+                                Text(
+                                    text = "Seus relatórios estão 100% limpos e prontos. Assim que você finalizar uma Corrida/Caminhada GPS, HIIT Cardio (25 min) ou Musculação com Elástico, ela aparecerá aqui mapeada por dia!",
+                                    fontSize = 12.sp,
+                                    color = OnSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+
+                    groupedByDay.forEach { (dayHeader, dayWorkouts) ->
+                        val dayTotalSec = dayWorkouts.sumOf { it.durationSeconds }
+                        val dayTotalMin = (dayTotalSec / 60).coerceAtLeast(1)
+                        val dayTotalKcal = dayWorkouts.sumOf { it.calories }
+                        val hasRunInDay = dayWorkouts.any { it.type == "RUN" }
+                        val hasHiitInDay = dayWorkouts.any { it.type == "HIIT" || it.type == "CALISTHENICS" }
+                        val hasElasticInDay = dayWorkouts.any { it.type == "ELASTIC" }
+                        val dayModalitiesLabel = buildList {
+                            if (hasRunInDay) add("🏃 Corrida/Caminhada")
+                            if (hasHiitInDay) add("🔥 HIIT Cardio")
+                            if (hasElasticInDay) add("💪 Musculação Elástico")
+                        }.joinToString(" + ")
+
+                        // Cabeçalho do Dia (Resumo Diário)
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(SurfaceContainerHigh)
+                                .border(1.dp, OutlineVariant.copy(alpha = 0.35f), RoundedCornerShape(12.dp))
+                                .padding(horizontal = 12.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column {
+                                Text(
+                                    text = dayHeader,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = PrimaryNeon
+                                )
+                                Text(
+                                    text = "${dayWorkouts.size} treino(s) • $dayModalitiesLabel",
+                                    fontSize = 10.sp,
+                                    color = OnSurfaceVariant
+                                )
+                            }
+
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                NeonBadge(
+                                    text = "${dayTotalMin} min",
+                                    color = SecondaryCyan
+                                )
+                                NeonBadge(
+                                    text = "$dayTotalKcal kcal",
+                                    color = TertiaryOrange
+                                )
+                            }
+                        }
+
+                        dayWorkouts.forEach { workout ->
+                            val isRun = workout.type == "RUN"
+                            val isElastic = workout.type == "ELASTIC"
+                            val iconColor = when {
+                                isRun -> SecondaryCyan
+                                isElastic -> PrimaryNeon
+                                else -> TertiaryOrange
+                            }
+                            val workoutIcon = when {
+                                isRun -> Icons.Default.DirectionsRun
+                                isElastic -> Icons.Default.FitnessCenter
+                                else -> Icons.Default.LocalFireDepartment
+                            }
+
+                            GlassCard(
+                                modifier = Modifier.fillMaxWidth(),
+                                cornerRadius = 16.dp
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    verticalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
                                     Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier.weight(1f)
-                                    ) {
-                                        Box(
-                                            modifier = Modifier
-                                                .size(38.dp)
-                                                .clip(RoundedCornerShape(10.dp))
-                                                .background(iconColor.copy(alpha = 0.15f))
-                                                .border(1.dp, iconColor.copy(alpha = 0.3f), RoundedCornerShape(10.dp)),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Icon(
-                                                imageVector = if (isRun) Icons.Default.DirectionsRun else Icons.Default.FitnessCenter,
-                                                contentDescription = null,
-                                                tint = iconColor,
-                                                modifier = Modifier.size(20.dp)
-                                            )
-                                        }
-
-                                        Spacer(modifier = Modifier.width(10.dp))
-
-                                        Column {
-                                            val dateStr = SimpleDateFormat("dd/MM/yyyy • HH:mm", Locale("pt", "BR"))
-                                                .format(Date(workout.timestamp))
-                                            Text(
-                                                text = dateStr,
-                                                fontSize = 10.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                color = OnSurfaceVariant
-                                            )
-                                            Text(
-                                                text = workout.title,
-                                                fontSize = 14.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                color = OnSurface
-                                            )
-                                        }
-                                    }
-
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                                    ) {
-                                        if (workout.tag.isNotBlank()) {
-                                            NeonBadge(
-                                                text = workout.tag,
-                                                color = if (workout.tag.contains("Meta") || workout.tag.contains("100%")) PrimaryNeon else SecondaryCyan
-                                            )
-                                        }
-                                        IconButton(
-                                            onClick = { viewModel.deleteWorkoutRecord(workout.id) },
-                                            modifier = Modifier.size(26.dp)
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.Close,
-                                                contentDescription = "Excluir Treino",
-                                                tint = OnSurfaceVariant.copy(alpha = 0.6f),
-                                                modifier = Modifier.size(15.dp)
-                                            )
-                                        }
-                                    }
-                                }
-
-                                if (isRun) {
-                                    Row(
                                         modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Column {
-                                            Text(text = "DISTÂNCIA", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = OnSurfaceVariant)
-                                            Text(text = "${workout.distanceMeters} m", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = OnSurface)
-                                            Text(text = workout.distanceKmFormatted, fontSize = 10.sp, color = SecondaryCyan)
-                                        }
-
-                                        Column {
-                                            Text(text = "TEMPO TOTAL", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = OnSurfaceVariant)
-                                            Text(text = workout.durationFormatted, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = OnSurface)
-                                            Text(text = "${workout.pausesCount} pausas", fontSize = 10.sp, color = OnSurfaceVariant)
-                                        }
-
-                                        Column {
-                                            Text(text = "PACE MÉDIO", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = OnSurfaceVariant)
-                                            Text(text = workout.paceFormatted, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = SecondaryCyan)
-                                            Text(text = "${workout.calories} kcal", fontSize = 10.sp, color = TertiaryOrange)
-                                        }
-
-                                        Column {
-                                            Text(text = "VEL. / ELEV.", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = OnSurfaceVariant)
-                                            Text(
-                                                text = if (workout.avgSpeedKmh > 0f) String.format(Locale.US, "%.1f km/h", workout.avgSpeedKmh) else "--",
-                                                fontSize = 15.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                color = PrimaryNeon
-                                            )
-                                            Text(
-                                                text = "+${workout.elevationGainMeters}m • ${workout.stepsEstimate} passos",
-                                                fontSize = 10.sp,
-                                                color = OnSurfaceVariant
-                                            )
-                                        }
-                                    }
-
-                                    // Mapeamento da Rotina de Corrida vs Caminhada (🏃 Correndo vs 🚶 Caminhando)
-                                    val runPct = workout.runningPercentage
-                                    val walkPct = (100 - runPct).coerceIn(0, 100)
-                                    val runBarWeight = (runPct / 100f).coerceIn(0.08f, 0.92f)
-                                    Column(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clip(RoundedCornerShape(10.dp))
-                                            .background(SurfaceContainerLowest)
-                                            .border(1.dp, OutlineVariant.copy(alpha = 0.25f), RoundedCornerShape(10.dp))
-                                            .padding(10.dp),
-                                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            modifier = Modifier.weight(1f)
                                         ) {
-                                            Text(
-                                                text = "🏃 CORRENDO: ${workout.runningFormatted} ($runPct%)",
-                                                fontSize = 11.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                color = Color(0xFF10B981)
-                                            )
-                                            Text(
-                                                text = "🚶 CAMINHANDO: ${workout.walkingFormatted} ($walkPct%)",
-                                                fontSize = 11.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                color = Color(0xFFF59E0B)
-                                            )
-                                        }
-
-                                        Row(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .height(7.dp)
-                                                .clip(RoundedCornerShape(4.dp))
-                                                .background(SurfaceContainerHigh)
-                                        ) {
-                                            if (runPct >= 100) {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .height(7.dp)
-                                                        .background(Color(0xFF10B981))
-                                                )
-                                            } else if (runPct <= 0) {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .height(7.dp)
-                                                        .background(Color(0xFFF59E0B))
-                                                )
-                                            } else {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .weight(runBarWeight)
-                                                        .height(7.dp)
-                                                        .background(Color(0xFF10B981))
-                                                )
-                                                Box(
-                                                    modifier = Modifier
-                                                        .weight((1f - runBarWeight).coerceAtLeast(0.08f))
-                                                        .height(7.dp)
-                                                        .background(Color(0xFFF59E0B))
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(38.dp)
+                                                    .clip(RoundedCornerShape(10.dp))
+                                                    .background(iconColor.copy(alpha = 0.15f))
+                                                    .border(1.dp, iconColor.copy(alpha = 0.3f), RoundedCornerShape(10.dp)),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Icon(
+                                                    imageVector = workoutIcon,
+                                                    contentDescription = null,
+                                                    tint = iconColor,
+                                                    modifier = Modifier.size(20.dp)
                                                 )
                                             }
-                                        }
 
-                                        if (workout.routineDetailsJson.isNotBlank()) {
-                                            Text(
-                                                text = workout.routineDetailsJson,
-                                                fontSize = 10.sp,
-                                                color = OnSurfaceVariant
-                                            )
-                                        }
-                                    }
+                                            Spacer(modifier = Modifier.width(10.dp))
 
-                                    if (workout.hasGpsCoordinates) {
-                                        val savedPts = workout.parsedRoutePoints()
-                                        Row(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .clip(RoundedCornerShape(10.dp))
-                                                .background(SurfaceContainerLowest)
-                                                .padding(10.dp),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Column(
-                                                modifier = Modifier.weight(1f),
-                                                verticalArrangement = Arrangement.spacedBy(3.dp)
-                                            ) {
-                                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                                    Icon(
-                                                        imageVector = Icons.Default.LocationOn,
-                                                        contentDescription = "Coordenadas GPS",
-                                                        tint = PrimaryNeon,
-                                                        modifier = Modifier.size(13.dp)
-                                                    )
-                                                    Spacer(modifier = Modifier.width(4.dp))
-                                                    Text(
-                                                        text = "COORDENADAS GPS GRAVADAS",
-                                                        fontSize = 9.sp,
-                                                        fontWeight = FontWeight.Bold,
-                                                        color = PrimaryNeon
-                                                    )
-                                                }
+                                            Column {
+                                                val dateStr = SimpleDateFormat("dd/MM/yyyy • HH:mm", Locale("pt", "BR"))
+                                                    .format(Date(workout.timestamp))
                                                 Text(
-                                                    text = workout.coordinatesSummaryFormatted,
+                                                    text = dateStr,
                                                     fontSize = 10.sp,
-                                                    fontWeight = FontWeight.SemiBold,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = OnSurfaceVariant
+                                                )
+                                                Text(
+                                                    text = workout.title,
+                                                    fontSize = 14.sp,
+                                                    fontWeight = FontWeight.Bold,
                                                     color = OnSurface
                                                 )
-                                                if (workout.splitsJson.isNotBlank()) {
-                                                    Text(
-                                                        text = "Splits: ${workout.splitsJson}",
-                                                        fontSize = 9.sp,
-                                                        color = SecondaryCyan
-                                                    )
-                                                }
                                             }
+                                        }
 
-                                            if (savedPts.size > 1) {
-                                                Spacer(modifier = Modifier.width(8.dp))
-                                                Box(
-                                                    modifier = Modifier
-                                                        .size(width = 72.dp, height = 46.dp)
-                                                        .clip(RoundedCornerShape(8.dp))
-                                                        .background(SurfaceContainerHigh)
-                                                        .border(1.dp, OutlineVariant.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
-                                                ) {
-                                                    Canvas(modifier = Modifier.fillMaxSize()) {
-                                                        val minLat = savedPts.minOf { it.first }
-                                                        val maxLat = savedPts.maxOf { it.first }
-                                                        val minLng = savedPts.minOf { it.second }
-                                                        val maxLng = savedPts.maxOf { it.second }
-                                                        val lngScale = cos(Math.toRadians((minLat + maxLat) / 2.0)).coerceAtLeast(0.2)
-                                                        val span = max(max(maxLat - minLat, (maxLng - minLng) * lngScale), 0.0002)
-
-                                                        val path = Path()
-                                                        savedPts.forEachIndexed { idx, (lat, lng) ->
-                                                            val nx = 0.5 + (((lng - (minLng + maxLng) / 2.0) * lngScale) / span) * 0.72
-                                                            val ny = 0.5 - ((lat - (minLat + maxLat) / 2.0) / span) * 0.72
-                                                            val px = (nx.toFloat().coerceIn(0.1f, 0.9f)) * size.width
-                                                            val py = (ny.toFloat().coerceIn(0.1f, 0.9f)) * size.height
-                                                            if (idx == 0) path.moveTo(px, py) else path.lineTo(px, py)
-                                                        }
-                                                        drawPath(
-                                                            path = path,
-                                                            color = PrimaryNeon,
-                                                            style = Stroke(width = 3f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-                                                        )
-                                                    }
-                                                }
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                        ) {
+                                            if (workout.tag.isNotBlank()) {
+                                                NeonBadge(
+                                                    text = workout.tag,
+                                                    color = if (workout.tag.contains("Meta") || workout.tag.contains("100%") || workout.tag.contains("Séries")) PrimaryNeon else SecondaryCyan
+                                                )
+                                            }
+                                            IconButton(
+                                                onClick = { viewModel.deleteWorkoutRecord(workout.id) },
+                                                modifier = Modifier.size(26.dp)
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Close,
+                                                    contentDescription = "Excluir Treino",
+                                                    tint = OnSurfaceVariant.copy(alpha = 0.6f),
+                                                    modifier = Modifier.size(15.dp)
+                                                )
                                             }
                                         }
                                     }
-                                } else {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Column {
-                                            Text(text = "EXERCÍCIOS", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = OnSurfaceVariant)
-                                            Text(text = "${workout.exercisesCount}/21", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = OnSurface)
+
+                                    if (isRun) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            Column {
+                                                Text(text = "DISTÂNCIA", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = OnSurfaceVariant)
+                                                Text(text = "${workout.distanceMeters} m", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = OnSurface)
+                                                Text(text = workout.distanceKmFormatted, fontSize = 10.sp, color = SecondaryCyan)
+                                            }
+
+                                            Column {
+                                                Text(text = "TEMPO TOTAL", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = OnSurfaceVariant)
+                                                Text(text = workout.durationFormatted, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = OnSurface)
+                                                Text(text = "${workout.pausesCount} pausas", fontSize = 10.sp, color = OnSurfaceVariant)
+                                            }
+
+                                            Column {
+                                                Text(text = "PACE MÉDIO", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = OnSurfaceVariant)
+                                                Text(text = workout.paceFormatted, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = SecondaryCyan)
+                                                Text(text = "${workout.calories} kcal", fontSize = 10.sp, color = TertiaryOrange)
+                                            }
+
+                                            Column {
+                                                Text(text = "VEL. / ELEV.", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = OnSurfaceVariant)
+                                                Text(
+                                                    text = if (workout.avgSpeedKmh > 0f) String.format(Locale.US, "%.1f km/h", workout.avgSpeedKmh) else "--",
+                                                    fontSize = 15.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = PrimaryNeon
+                                                )
+                                                Text(
+                                                    text = "+${workout.elevationGainMeters}m • ${workout.stepsEstimate} passos",
+                                                    fontSize = 10.sp,
+                                                    color = OnSurfaceVariant
+                                                )
+                                            }
                                         }
 
-                                        Column {
-                                            Text(text = "TEMPO", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = OnSurfaceVariant)
-                                            Text(text = workout.durationFormatted, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = OnSurface)
-                                        }
-
-                                        Column {
-                                            Text(text = "ESTRUTURA", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = OnSurfaceVariant)
-                                            Text(text = "4 Fases (21x)", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = TertiaryOrange)
-                                        }
-
-                                        Column {
-                                            Text(text = "CALORIAS", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = OnSurfaceVariant)
-                                            Text(text = "~${workout.calories} kcal", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = PrimaryNeon)
-                                        }
-                                    }
-
-                                    if (workout.routineDetailsJson.isNotBlank()) {
-                                        val detailLines = workout.routineDetailsJson.lines().filter { it.isNotBlank() }
+                                        // Mapeamento da Rotina de Corrida vs Caminhada (🏃 Correndo vs 🚶 Caminhando)
+                                        val runPct = workout.runningPercentage
+                                        val walkPct = (100 - runPct).coerceIn(0, 100)
+                                        val runBarWeight = (runPct / 100f).coerceIn(0.08f, 0.92f)
                                         Column(
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .clip(RoundedCornerShape(10.dp))
                                                 .background(SurfaceContainerLowest)
-                                                .border(1.dp, TertiaryOrange.copy(alpha = 0.28f), RoundedCornerShape(10.dp))
+                                                .border(1.dp, OutlineVariant.copy(alpha = 0.25f), RoundedCornerShape(10.dp))
                                                 .padding(10.dp),
-                                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                                            verticalArrangement = Arrangement.spacedBy(6.dp)
                                         ) {
-                                            Text(
-                                                text = "MAPEAMENTO DA ROTINA POR FASE",
-                                                fontSize = 9.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                color = TertiaryOrange,
-                                                letterSpacing = 0.8.sp
-                                            )
-                                            detailLines.forEachIndexed { idx, line ->
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
                                                 Text(
-                                                    text = line,
-                                                    fontSize = if (idx == 0) 11.sp else 10.sp,
-                                                    fontWeight = if (idx == 0) FontWeight.Bold else FontWeight.Normal,
-                                                    color = if (idx == 0) PrimaryNeon else OnSurfaceVariant
+                                                    text = "🏃 CORRENDO: ${workout.runningFormatted} ($runPct%)",
+                                                    fontSize = 11.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = Color(0xFF10B981)
                                                 )
+                                                Text(
+                                                    text = "🚶 CAMINHANDO: ${workout.walkingFormatted} ($walkPct%)",
+                                                    fontSize = 11.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = Color(0xFFF59E0B)
+                                                )
+                                            }
+
+                                            Row(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .height(7.dp)
+                                                    .clip(RoundedCornerShape(4.dp))
+                                                    .background(SurfaceContainerHigh)
+                                            ) {
+                                                if (runPct >= 100) {
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .height(7.dp)
+                                                            .background(Color(0xFF10B981))
+                                                    )
+                                                } else if (runPct <= 0) {
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .height(7.dp)
+                                                            .background(Color(0xFFF59E0B))
+                                                    )
+                                                } else {
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .weight(runBarWeight)
+                                                            .height(7.dp)
+                                                            .background(Color(0xFF10B981))
+                                                    )
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .weight((1f - runBarWeight).coerceAtLeast(0.08f))
+                                                            .height(7.dp)
+                                                            .background(Color(0xFFF59E0B))
+                                                    )
+                                                }
+                                            }
+
+                                            if (workout.routineDetailsJson.isNotBlank()) {
+                                                Text(
+                                                    text = workout.routineDetailsJson,
+                                                    fontSize = 10.sp,
+                                                    color = OnSurfaceVariant
+                                                )
+                                            }
+                                        }
+
+                                        if (workout.hasGpsCoordinates) {
+                                            val savedPts = workout.parsedRoutePoints()
+                                            Row(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .clip(RoundedCornerShape(10.dp))
+                                                    .background(SurfaceContainerLowest)
+                                                    .padding(10.dp),
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Column(
+                                                    modifier = Modifier.weight(1f),
+                                                    verticalArrangement = Arrangement.spacedBy(3.dp)
+                                                ) {
+                                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                                        Icon(
+                                                            imageVector = Icons.Default.LocationOn,
+                                                            contentDescription = "Coordenadas GPS",
+                                                            tint = PrimaryNeon,
+                                                            modifier = Modifier.size(13.dp)
+                                                        )
+                                                        Spacer(modifier = Modifier.width(4.dp))
+                                                        Text(
+                                                            text = "COORDENADAS GPS GRAVADAS",
+                                                            fontSize = 9.sp,
+                                                            fontWeight = FontWeight.Bold,
+                                                            color = PrimaryNeon
+                                                        )
+                                                    }
+                                                    Text(
+                                                        text = workout.coordinatesSummaryFormatted,
+                                                        fontSize = 10.sp,
+                                                        fontWeight = FontWeight.SemiBold,
+                                                        color = OnSurface
+                                                    )
+                                                    if (workout.splitsJson.isNotBlank()) {
+                                                        Text(
+                                                            text = "Splits: ${workout.splitsJson}",
+                                                            fontSize = 9.sp,
+                                                            color = SecondaryCyan
+                                                        )
+                                                    }
+                                                }
+
+                                                if (savedPts.size > 1) {
+                                                    Spacer(modifier = Modifier.width(8.dp))
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .size(width = 72.dp, height = 46.dp)
+                                                            .clip(RoundedCornerShape(8.dp))
+                                                            .background(SurfaceContainerHigh)
+                                                            .border(1.dp, OutlineVariant.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
+                                                    ) {
+                                                        Canvas(modifier = Modifier.fillMaxSize()) {
+                                                            val minLat = savedPts.minOf { it.first }
+                                                            val maxLat = savedPts.maxOf { it.first }
+                                                            val minLng = savedPts.minOf { it.second }
+                                                            val maxLng = savedPts.maxOf { it.second }
+                                                            val lngScale = cos(Math.toRadians((minLat + maxLat) / 2.0)).coerceAtLeast(0.2)
+                                                            val span = max(max(maxLat - minLat, (maxLng - minLng) * lngScale), 0.0002)
+
+                                                            val path = Path()
+                                                            savedPts.forEachIndexed { idx, (lat, lng) ->
+                                                                val nx = 0.5 + (((lng - (minLng + maxLng) / 2.0) * lngScale) / span) * 0.72
+                                                                val ny = 0.5 - ((lat - (minLat + maxLat) / 2.0) / span) * 0.72
+                                                                val px = (nx.toFloat().coerceIn(0.1f, 0.9f)) * size.width
+                                                                val py = (ny.toFloat().coerceIn(0.1f, 0.9f)) * size.height
+                                                                if (idx == 0) path.moveTo(px, py) else path.lineTo(px, py)
+                                                            }
+                                                            drawPath(
+                                                                path = path,
+                                                                color = PrimaryNeon,
+                                                                style = Stroke(width = 3f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+                                                            )
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } else if (isElastic) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            Column {
+                                                Text(text = "EXERCÍCIOS", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = OnSurfaceVariant)
+                                                Text(text = "${workout.exercisesCount}/7", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = OnSurface)
+                                            }
+
+                                            Column {
+                                                Text(text = "TEMPO", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = OnSurfaceVariant)
+                                                Text(text = workout.durationFormatted, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = OnSurface)
+                                            }
+
+                                            Column {
+                                                Text(text = "VOLUME / SÉRIES", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = OnSurfaceVariant)
+                                                Text(text = workout.tag.ifBlank { "Elástico" }, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = SecondaryCyan)
+                                            }
+
+                                            Column {
+                                                Text(text = "CALORIAS", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = OnSurfaceVariant)
+                                                Text(text = "~${workout.calories} kcal", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = PrimaryNeon)
+                                            }
+                                        }
+
+                                        if (workout.routineDetailsJson.isNotBlank()) {
+                                            val detailLines = workout.routineDetailsJson.lines().filter { it.isNotBlank() }
+                                            Column(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .clip(RoundedCornerShape(10.dp))
+                                                    .background(SurfaceContainerLowest)
+                                                    .border(1.dp, SecondaryCyan.copy(alpha = 0.28f), RoundedCornerShape(10.dp))
+                                                    .padding(10.dp),
+                                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                                            ) {
+                                                Text(
+                                                    text = "SÉRIES & REPETIÇÕES REGISTRADAS NO ELÁSTICO",
+                                                    fontSize = 9.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = SecondaryCyan,
+                                                    letterSpacing = 0.8.sp
+                                                )
+                                                detailLines.forEachIndexed { idx, line ->
+                                                    Text(
+                                                        text = line,
+                                                        fontSize = if (idx == 0) 11.sp else 10.sp,
+                                                        fontWeight = if (idx == 0) FontWeight.Bold else FontWeight.Normal,
+                                                        color = if (idx == 0) PrimaryNeon else OnSurfaceVariant
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        val totalRoutineEx = if (workout.type == "HIIT") 27 else 21
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            Column {
+                                                Text(text = "EXERCÍCIOS", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = OnSurfaceVariant)
+                                                Text(text = "${workout.exercisesCount}/$totalRoutineEx", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = OnSurface)
+                                            }
+
+                                            Column {
+                                                Text(text = "TEMPO", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = OnSurfaceVariant)
+                                                Text(text = workout.durationFormatted, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = OnSurface)
+                                            }
+
+                                            Column {
+                                                Text(text = "ESTRUTURA", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = OnSurfaceVariant)
+                                                Text(
+                                                    text = if (workout.type == "HIIT") "Aquec. + HIIT (27x)" else "4 Fases (21x)",
+                                                    fontSize = 13.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = TertiaryOrange
+                                                )
+                                            }
+
+                                            Column {
+                                                Text(text = "CALORIAS", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = OnSurfaceVariant)
+                                                Text(text = "~${workout.calories} kcal", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = PrimaryNeon)
+                                            }
+                                        }
+
+                                        if (workout.routineDetailsJson.isNotBlank()) {
+                                            val detailLines = workout.routineDetailsJson.lines().filter { it.isNotBlank() }
+                                            Column(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .clip(RoundedCornerShape(10.dp))
+                                                    .background(SurfaceContainerLowest)
+                                                    .border(1.dp, TertiaryOrange.copy(alpha = 0.28f), RoundedCornerShape(10.dp))
+                                                    .padding(10.dp),
+                                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                                            ) {
+                                                Text(
+                                                    text = "MAPEAMENTO DO TREINO HIIT POR FASE",
+                                                    fontSize = 9.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = TertiaryOrange,
+                                                    letterSpacing = 0.8.sp
+                                                )
+                                                detailLines.forEachIndexed { idx, line ->
+                                                    Text(
+                                                        text = line,
+                                                        fontSize = if (idx == 0) 11.sp else 10.sp,
+                                                        fontWeight = if (idx == 0) FontWeight.Bold else FontWeight.Normal,
+                                                        color = if (idx == 0) PrimaryNeon else OnSurfaceVariant
+                                                    )
+                                                }
                                             }
                                         }
                                     }
@@ -1060,7 +1193,6 @@ fun HistoryScreen(
                             }
                         }
                     }
-                }
             }
 
             // Central de Backup, Restauração & Zerar Dados (SQLite / Room)

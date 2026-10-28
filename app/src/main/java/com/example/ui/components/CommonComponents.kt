@@ -29,15 +29,15 @@ import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Insights
+import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.outlined.DirectionsRun
 import androidx.compose.material.icons.outlined.FitnessCenter
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Tune
+import androidx.compose.material.icons.outlined.LocalFireDepartment
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -48,7 +48,6 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -140,35 +139,67 @@ fun BitFitTopAppBar(
                 }
             }
 
-            // Persistence Badge (Matches screenshots)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(SurfaceContainerHigh)
-                    .border(1.dp, OutlineVariant.copy(alpha = 0.4f), RoundedCornerShape(20.dp))
-                    .padding(horizontal = 10.dp, vertical = 5.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Storage,
-                    contentDescription = "Database",
-                    tint = SecondaryCyan,
-                    modifier = Modifier.size(13.dp)
-                )
-                Spacer(modifier = Modifier.width(5.dp))
-                Text(
-                    text = "SQLite / Room",
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = SecondaryCyan
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Box(
+                if (onTuneClick != null) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .testTag("btn_top_bar_goals")
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(PrimaryNeon.copy(alpha = 0.14f))
+                            .border(1.dp, PrimaryNeon.copy(alpha = 0.45f), RoundedCornerShape(20.dp))
+                            .clickable { onTuneClick() }
+                            .padding(horizontal = 10.dp, vertical = 5.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Tune,
+                            contentDescription = "Metas",
+                            tint = PrimaryNeon,
+                            modifier = Modifier.size(13.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Metas",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = PrimaryNeon
+                        )
+                    }
+                }
+
+                // Persistence Badge
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                        .size(7.dp)
-                        .clip(CircleShape)
-                        .background(PrimaryNeon.copy(alpha = pulseAlpha))
-                )
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(SurfaceContainerHigh)
+                        .border(1.dp, OutlineVariant.copy(alpha = 0.4f), RoundedCornerShape(20.dp))
+                        .padding(horizontal = 10.dp, vertical = 5.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Storage,
+                        contentDescription = "Database",
+                        tint = SecondaryCyan,
+                        modifier = Modifier.size(13.dp)
+                    )
+                    Spacer(modifier = Modifier.width(5.dp))
+                    Text(
+                        text = "SQLite",
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = SecondaryCyan
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Box(
+                        modifier = Modifier
+                            .size(7.dp)
+                            .clip(CircleShape)
+                            .background(PrimaryNeon.copy(alpha = pulseAlpha))
+                    )
+                }
             }
         }
     }
@@ -182,8 +213,8 @@ fun BitFitBottomNav(
     val items = listOf(
         Triple(AppScreen.DASHBOARD, "Início", Icons.Filled.Home to Icons.Outlined.Home),
         Triple(AppScreen.RUN_TRACKER, "Corrida", Icons.Filled.DirectionsRun to Icons.Outlined.DirectionsRun),
-        Triple(AppScreen.CALISTHENICS, "Calistenia", Icons.Filled.FitnessCenter to Icons.Outlined.FitnessCenter),
-        Triple(AppScreen.GOALS, "Metas", Icons.Filled.Tune to Icons.Outlined.Tune),
+        Triple(AppScreen.HIIT, "HIIT", Icons.Filled.LocalFireDepartment to Icons.Outlined.LocalFireDepartment),
+        Triple(AppScreen.ELASTIC_STRENGTH, "Elástico", Icons.Filled.FitnessCenter to Icons.Outlined.FitnessCenter),
         Triple(AppScreen.BODY_EVOLUTION, "Peso/IMC", Icons.Filled.BarChart to Icons.Filled.BarChart),
         Triple(AppScreen.HISTORY, "Histórico", Icons.Filled.History to Icons.Outlined.History)
     )
@@ -228,7 +259,7 @@ fun BitFitBottomNav(
                                 if (isSelected) Modifier.background(PrimaryNeon.copy(alpha = 0.15f))
                                 else Modifier
                             )
-                            .padding(horizontal = 10.dp, vertical = 4.dp),
+                            .padding(horizontal = 9.dp, vertical = 4.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(

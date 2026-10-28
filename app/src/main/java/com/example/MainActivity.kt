@@ -19,10 +19,11 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ui.components.BitFitBottomNav
 import com.example.ui.screens.BodyEvolutionScreen
-import com.example.ui.screens.CalisthenicsScreen
 import com.example.ui.screens.DashboardScreen
+import com.example.ui.screens.ElasticStrengthScreen
 import com.example.ui.screens.GoalsScreen
 import com.example.ui.screens.GpsRunScreen
+import com.example.ui.screens.HiitScreen
 import com.example.ui.screens.HistoryScreen
 import com.example.ui.screens.ProfileSetupScreen
 import com.example.ui.theme.BgDark
@@ -98,7 +99,11 @@ fun BitFitApp(viewModel: BitFitViewModel = viewModel()) {
                         viewModel = viewModel,
                         onNavigate = { viewModel.navigateTo(it) }
                     )
-                    AppScreen.CALISTHENICS -> CalisthenicsScreen(
+                    AppScreen.HIIT -> HiitScreen(
+                        viewModel = viewModel,
+                        onNavigate = { viewModel.navigateTo(it) }
+                    )
+                    AppScreen.ELASTIC_STRENGTH -> ElasticStrengthScreen(
                         viewModel = viewModel,
                         onNavigate = { viewModel.navigateTo(it) }
                     )

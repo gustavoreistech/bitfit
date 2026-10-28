@@ -9,8 +9,10 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.example.data.db.BitFitDatabase
-import com.example.data.model.CalisthenicsExercises
+import com.example.data.model.ElasticStrengthExercises
 import com.example.data.model.Exercise
+import com.example.data.model.HiitExercises
+import com.example.data.model.StrengthExercise
 import com.example.data.model.UserSettings
 import com.example.data.model.WeightRecord
 import com.example.data.model.WorkoutRecord
@@ -35,7 +37,8 @@ import kotlin.math.sin
 enum class AppScreen {
     DASHBOARD,
     RUN_TRACKER,
-    CALISTHENICS,
+    HIIT,
+    ELASTIC_STRENGTH,
     GOALS,
     BODY_EVOLUTION,
     HISTORY
@@ -246,43 +249,80 @@ class BitFitViewModel(application: Application) : AndroidViewModel(application) 
     private var lastKmSplitTimestampSec = 0
 
     // -------------------------------------------------------------
-    // CALISTHENICS FOLLOW-ALONG (20 EXERCÍCIOS • ~20 MIN)
+    // MÓDULO 2: HIIT CARDIO EM CASA (27 EXERCÍCIOS • 25 MIN)
     // -------------------------------------------------------------
-    private var calisJob: Job? = null
-    val calisExercises: List<Exercise> = CalisthenicsExercises.routine20
+    private var hiitJob: Job? = null
+    val hiitExercises: List<Exercise> = HiitExercises.routine27
 
-    private val _calisIsActive = MutableStateFlow(false)
-    val calisIsActive: StateFlow<Boolean> = _calisIsActive.asStateFlow()
+    private val _hiitIsActive = MutableStateFlow(false)
+    val hiitIsActive: StateFlow<Boolean> = _hiitIsActive.asStateFlow()
 
-    private val _calisIsPaused = MutableStateFlow(false)
-    val calisIsPaused: StateFlow<Boolean> = _calisIsPaused.asStateFlow()
+    private val _hiitIsPaused = MutableStateFlow(false)
+    val hiitIsPaused: StateFlow<Boolean> = _hiitIsPaused.asStateFlow()
 
-    private val _calisExerciseIndex = MutableStateFlow(0)
-    val calisExerciseIndex: StateFlow<Int> = _calisExerciseIndex.asStateFlow()
+    private val _hiitExerciseIndex = MutableStateFlow(0)
+    val hiitExerciseIndex: StateFlow<Int> = _hiitExerciseIndex.asStateFlow()
 
-    private val _calisIsRest = MutableStateFlow(false)
-    val calisIsRest: StateFlow<Boolean> = _calisIsRest.asStateFlow()
+    private val _hiitIsRest = MutableStateFlow(false)
+    val hiitIsRest: StateFlow<Boolean> = _hiitIsRest.asStateFlow()
 
-    private val _calisSecondsLeft = MutableStateFlow(45)
-    val calisSecondsLeft: StateFlow<Int> = _calisSecondsLeft.asStateFlow()
+    private val _hiitSecondsLeft = MutableStateFlow(20)
+    val hiitSecondsLeft: StateFlow<Int> = _hiitSecondsLeft.asStateFlow()
 
-    private val _calisTotalElapsedSeconds = MutableStateFlow(0)
-    val calisTotalElapsedSeconds: StateFlow<Int> = _calisTotalElapsedSeconds.asStateFlow()
+    private val _hiitTotalElapsedSeconds = MutableStateFlow(0)
+    val hiitTotalElapsedSeconds: StateFlow<Int> = _hiitTotalElapsedSeconds.asStateFlow()
 
-    private val _calisCompleted = MutableStateFlow(false)
-    val calisCompleted: StateFlow<Boolean> = _calisCompleted.asStateFlow()
+    private val _hiitCompleted = MutableStateFlow(false)
+    val hiitCompleted: StateFlow<Boolean> = _hiitCompleted.asStateFlow()
 
-    private val _calisCompletedExerciseIds = MutableStateFlow<Set<Int>>(emptySet())
-    val calisCompletedExerciseIds: StateFlow<Set<Int>> = _calisCompletedExerciseIds.asStateFlow()
+    private val _hiitCompletedExerciseIds = MutableStateFlow<Set<Int>>(emptySet())
+    val hiitCompletedExerciseIds: StateFlow<Set<Int>> = _hiitCompletedExerciseIds.asStateFlow()
 
-    private val _calisSkippedExerciseIds = MutableStateFlow<Set<Int>>(emptySet())
-    val calisSkippedExerciseIds: StateFlow<Set<Int>> = _calisSkippedExerciseIds.asStateFlow()
+    private val _hiitSkippedExerciseIds = MutableStateFlow<Set<Int>>(emptySet())
+    val hiitSkippedExerciseIds: StateFlow<Set<Int>> = _hiitSkippedExerciseIds.asStateFlow()
 
-    private val _calisSaveEnabled = MutableStateFlow(true)
-    val calisSaveEnabled: StateFlow<Boolean> = _calisSaveEnabled.asStateFlow()
+    private val _hiitSaveEnabled = MutableStateFlow(true)
+    val hiitSaveEnabled: StateFlow<Boolean> = _hiitSaveEnabled.asStateFlow()
 
-    private val _calisLastSavedToHistory = MutableStateFlow(false)
-    val calisLastSavedToHistory: StateFlow<Boolean> = _calisLastSavedToHistory.asStateFlow()
+    private val _hiitLastSavedToHistory = MutableStateFlow(false)
+    val hiitLastSavedToHistory: StateFlow<Boolean> = _hiitLastSavedToHistory.asStateFlow()
+
+    // -------------------------------------------------------------
+    // MÓDULO 3: MUSCULAÇÃO COM ELÁSTICO (SÉRIES, REPS & DESCANSO 60s)
+    // -------------------------------------------------------------
+    private var elasticRestJob: Job? = null
+    private var elasticStretchJob: Job? = null
+    private var elasticElapsedJob: Job? = null
+
+    val elasticExercises: List<StrengthExercise> = ElasticStrengthExercises.routine7
+
+    // Chave = exercise.id, Valor = lista de repetições concluídas em cada série (ex: [15, 15, 14, 12])
+    private val _elasticCompletedSetsMap = MutableStateFlow<Map<Int, List<Int>>>(emptyMap())
+    val elasticCompletedSetsMap: StateFlow<Map<Int, List<Int>>> = _elasticCompletedSetsMap.asStateFlow()
+
+    private val _elasticRestSecondsLeft = MutableStateFlow(0)
+    val elasticRestSecondsLeft: StateFlow<Int> = _elasticRestSecondsLeft.asStateFlow()
+
+    private val _elasticRestTargetExerciseName = MutableStateFlow("")
+    val elasticRestTargetExerciseName: StateFlow<String> = _elasticRestTargetExerciseName.asStateFlow()
+
+    private val _elasticActiveExerciseId = MutableStateFlow(1)
+    val elasticActiveExerciseId: StateFlow<Int> = _elasticActiveExerciseId.asStateFlow()
+
+    private val _elasticStretchSecondsLeft = MutableStateFlow(600) // 10 min = 600s
+    val elasticStretchSecondsLeft: StateFlow<Int> = _elasticStretchSecondsLeft.asStateFlow()
+
+    private val _elasticStretchRunning = MutableStateFlow(false)
+    val elasticStretchRunning: StateFlow<Boolean> = _elasticStretchRunning.asStateFlow()
+
+    private val _elasticStretchCompleted = MutableStateFlow(false)
+    val elasticStretchCompleted: StateFlow<Boolean> = _elasticStretchCompleted.asStateFlow()
+
+    private val _elasticWorkoutElapsedSeconds = MutableStateFlow(0)
+    val elasticWorkoutElapsedSeconds: StateFlow<Int> = _elasticWorkoutElapsedSeconds.asStateFlow()
+
+    private val _elasticWorkoutSavedBanner = MutableStateFlow(false)
+    val elasticWorkoutSavedBanner: StateFlow<Boolean> = _elasticWorkoutSavedBanner.asStateFlow()
 
     private val gpsTracker: GpsLocationTracker = GpsLocationTracker(
         context = application,
@@ -857,72 +897,75 @@ class BitFitViewModel(application: Application) : AndroidViewModel(application) 
         lastKmSplitTimestampSec = 0
     }
 
-    fun toggleCalisSaveEnabled() {
-        _calisSaveEnabled.value = !_calisSaveEnabled.value
+    // -------------------------------------------------------------
+    // MÓDULO 2: HIIT CARDIO EM CASA (25 MIN) ACTIONS
+    // -------------------------------------------------------------
+    fun toggleHiitSaveEnabled() {
+        _hiitSaveEnabled.value = !_hiitSaveEnabled.value
     }
 
-    fun startCalisthenics(startIndex: Int = 0) {
-        val safeIdx = startIndex.coerceIn(0, (calisExercises.size - 1).coerceAtLeast(0))
-        val targetExercise = calisExercises.getOrNull(safeIdx) ?: return
-        if (!_calisIsActive.value && safeIdx == 0) {
-            _calisCompletedExerciseIds.value = emptySet()
-            _calisSkippedExerciseIds.value = emptySet()
-            _calisTotalElapsedSeconds.value = 0
+    fun startHiit(startIndex: Int = 0) {
+        val safeIdx = startIndex.coerceIn(0, (hiitExercises.size - 1).coerceAtLeast(0))
+        val targetExercise = hiitExercises.getOrNull(safeIdx) ?: return
+        if (!_hiitIsActive.value && safeIdx == 0) {
+            _hiitCompletedExerciseIds.value = emptySet()
+            _hiitSkippedExerciseIds.value = emptySet()
+            _hiitTotalElapsedSeconds.value = 0
         }
-        _calisIsActive.value = true
-        _calisIsPaused.value = false
-        _calisExerciseIndex.value = safeIdx
-        _calisIsRest.value = false
-        _calisSecondsLeft.value = targetExercise.durationSeconds
-        _calisCompleted.value = false
-        _calisLastSavedToHistory.value = false
+        _hiitIsActive.value = true
+        _hiitIsPaused.value = false
+        _hiitExerciseIndex.value = safeIdx
+        _hiitIsRest.value = false
+        _hiitSecondsLeft.value = targetExercise.durationSeconds
+        _hiitCompleted.value = false
+        _hiitLastSavedToHistory.value = false
 
-        calisJob?.cancel()
-        calisJob = viewModelScope.launch {
-            while (_calisIsActive.value && !_calisCompleted.value) {
+        hiitJob?.cancel()
+        hiitJob = viewModelScope.launch {
+            while (_hiitIsActive.value && !_hiitCompleted.value) {
                 delay(1000L)
-                if (!_calisIsPaused.value) {
-                    _calisTotalElapsedSeconds.value += 1
-                    val currentLeft = _calisSecondsLeft.value - 1
-                    _calisSecondsLeft.value = currentLeft
+                if (!_hiitIsPaused.value) {
+                    _hiitTotalElapsedSeconds.value += 1
+                    val currentLeft = _hiitSecondsLeft.value - 1
+                    _hiitSecondsLeft.value = currentLeft
 
                     if (currentLeft in 1..3) {
                         soundFeedback.playBeepShort()
                     }
 
                     if (currentLeft <= 0) {
-                        val currentEx = calisExercises.getOrElse(_calisExerciseIndex.value) { calisExercises[0] }
-                        if (!_calisIsRest.value) {
-                            // Automatic completion of the current exercise when its timer finishes!
-                            _calisCompletedExerciseIds.value = _calisCompletedExerciseIds.value + currentEx.id
-                            _calisSkippedExerciseIds.value = _calisSkippedExerciseIds.value - currentEx.id
+                        val currentEx = hiitExercises.getOrElse(_hiitExerciseIndex.value) { hiitExercises[0] }
+                        if (!_hiitIsRest.value) {
+                            // Automatic completion of the current exercise when its timer finishes
+                            _hiitCompletedExerciseIds.value = _hiitCompletedExerciseIds.value + currentEx.id
+                            _hiitSkippedExerciseIds.value = _hiitSkippedExerciseIds.value - currentEx.id
                             soundFeedback.playTransitionSuccess()
 
-                            val nextIdx = _calisExerciseIndex.value + 1
-                            if (nextIdx >= calisExercises.size) {
-                                // Last exercise completed automatically
-                                completeCalisthenicsSession(saveToHistory = _calisSaveEnabled.value)
+                            val nextIdx = _hiitExerciseIndex.value + 1
+                            if (nextIdx >= hiitExercises.size) {
+                                completeHiitSession(saveToHistory = _hiitSaveEnabled.value)
                             } else if (currentEx.restSeconds > 0) {
-                                // Enter Rest phase before automatically jumping to the next exercise
-                                _calisIsRest.value = true
-                                _calisSecondsLeft.value = currentEx.restSeconds
+                                // Enter 15s Rest phase where UI highlights the NEXT exercise!
+                                _hiitIsRest.value = true
+                                _hiitSecondsLeft.value = currentEx.restSeconds
                             } else {
-                                val nextEx = calisExercises[nextIdx]
-                                _calisExerciseIndex.value = nextIdx
-                                _calisIsRest.value = false
-                                _calisSecondsLeft.value = nextEx.durationSeconds
+                                // Warmup (restSeconds == 0) jumps straight to next exercise
+                                val nextEx = hiitExercises[nextIdx]
+                                _hiitExerciseIndex.value = nextIdx
+                                _hiitIsRest.value = false
+                                _hiitSecondsLeft.value = nextEx.durationSeconds
                             }
                         } else {
-                            // Rest finished -> automatically jump to the next exercise!
-                            val nextIdx = _calisExerciseIndex.value + 1
-                            if (nextIdx < calisExercises.size) {
-                                val nextEx = calisExercises[nextIdx]
+                            // Rest finished -> automatically start the next exercise!
+                            val nextIdx = _hiitExerciseIndex.value + 1
+                            if (nextIdx < hiitExercises.size) {
+                                val nextEx = hiitExercises[nextIdx]
                                 soundFeedback.playTransitionSuccess()
-                                _calisExerciseIndex.value = nextIdx
-                                _calisIsRest.value = false
-                                _calisSecondsLeft.value = nextEx.durationSeconds
+                                _hiitExerciseIndex.value = nextIdx
+                                _hiitIsRest.value = false
+                                _hiitSecondsLeft.value = nextEx.durationSeconds
                             } else {
-                                completeCalisthenicsSession(saveToHistory = _calisSaveEnabled.value)
+                                completeHiitSession(saveToHistory = _hiitSaveEnabled.value)
                             }
                         }
                     }
@@ -931,118 +974,110 @@ class BitFitViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    fun addCalisthenicsSeconds(extraSeconds: Int = 15) {
-        if (_calisIsActive.value) {
-            _calisSecondsLeft.value = (_calisSecondsLeft.value + extraSeconds).coerceAtMost(180)
+    fun addHiitSeconds(extraSeconds: Int = 15) {
+        if (_hiitIsActive.value) {
+            _hiitSecondsLeft.value = (_hiitSecondsLeft.value + extraSeconds).coerceAtMost(180)
             soundFeedback.playBeepShort()
         }
     }
 
-    fun pauseCalisthenics() {
-        if (_calisIsActive.value && !_calisIsPaused.value) {
-            _calisIsPaused.value = true
+    fun pauseHiit() {
+        if (_hiitIsActive.value && !_hiitIsPaused.value) {
+            _hiitIsPaused.value = true
         }
     }
 
-    fun resumeCalisthenics() {
-        if (_calisIsActive.value && _calisIsPaused.value) {
-            _calisIsPaused.value = false
+    fun resumeHiit() {
+        if (_hiitIsActive.value && _hiitIsPaused.value) {
+            _hiitIsPaused.value = false
         }
     }
 
-    /**
-     * Marks current exercise as completed with success and advances to the next exercise.
-     */
-    fun nextExercise() {
-        val currentEx = calisExercises.getOrElse(_calisExerciseIndex.value) { calisExercises[0] }
-        _calisCompletedExerciseIds.value = _calisCompletedExerciseIds.value + currentEx.id
-        _calisSkippedExerciseIds.value = _calisSkippedExerciseIds.value - currentEx.id
+    fun nextHiitExercise() {
+        val currentEx = hiitExercises.getOrElse(_hiitExerciseIndex.value) { hiitExercises[0] }
+        if (!_hiitIsRest.value) {
+            _hiitCompletedExerciseIds.value = _hiitCompletedExerciseIds.value + currentEx.id
+            _hiitSkippedExerciseIds.value = _hiitSkippedExerciseIds.value - currentEx.id
+        }
 
-        val nextIdx = _calisExerciseIndex.value + 1
-        if (nextIdx < calisExercises.size) {
-            val nextEx = calisExercises[nextIdx]
-            _calisExerciseIndex.value = nextIdx
-            _calisIsRest.value = false
-            _calisSecondsLeft.value = nextEx.durationSeconds
+        val nextIdx = _hiitExerciseIndex.value + 1
+        if (nextIdx < hiitExercises.size) {
+            val nextEx = hiitExercises[nextIdx]
+            _hiitExerciseIndex.value = nextIdx
+            _hiitIsRest.value = false
+            _hiitSecondsLeft.value = nextEx.durationSeconds
             soundFeedback.playTransitionSuccess()
         } else {
-            completeCalisthenicsSession(saveToHistory = _calisSaveEnabled.value)
+            completeHiitSession(saveToHistory = _hiitSaveEnabled.value)
         }
     }
 
-    /**
-     * Skips the current exercise without marking it as completed (for when an exercise cannot be done).
-     */
-    fun skipExerciseWithoutRecording() {
-        val currentEx = calisExercises.getOrElse(_calisExerciseIndex.value) { calisExercises[0] }
-        _calisSkippedExerciseIds.value = _calisSkippedExerciseIds.value + currentEx.id
-        _calisCompletedExerciseIds.value = _calisCompletedExerciseIds.value - currentEx.id
+    fun skipHiitExerciseWithoutRecording() {
+        val currentEx = hiitExercises.getOrElse(_hiitExerciseIndex.value) { hiitExercises[0] }
+        if (!_hiitIsRest.value) {
+            _hiitSkippedExerciseIds.value = _hiitSkippedExerciseIds.value + currentEx.id
+            _hiitCompletedExerciseIds.value = _hiitCompletedExerciseIds.value - currentEx.id
+        }
 
-        val nextIdx = _calisExerciseIndex.value + 1
-        if (nextIdx < calisExercises.size) {
-            val nextEx = calisExercises[nextIdx]
-            _calisExerciseIndex.value = nextIdx
-            _calisIsRest.value = false
-            _calisSecondsLeft.value = nextEx.durationSeconds
+        val nextIdx = _hiitExerciseIndex.value + 1
+        if (nextIdx < hiitExercises.size) {
+            val nextEx = hiitExercises[nextIdx]
+            _hiitExerciseIndex.value = nextIdx
+            _hiitIsRest.value = false
+            _hiitSecondsLeft.value = nextEx.durationSeconds
             soundFeedback.playBeepShort()
         } else {
-            completeCalisthenicsSession(saveToHistory = _calisSaveEnabled.value)
+            completeHiitSession(saveToHistory = _hiitSaveEnabled.value)
         }
     }
 
-    fun previousExercise() {
-        val prevIdx = (_calisExerciseIndex.value - 1).coerceAtLeast(0)
-        val prevEx = calisExercises[prevIdx]
-        _calisExerciseIndex.value = prevIdx
-        _calisIsRest.value = false
-        _calisSecondsLeft.value = prevEx.durationSeconds
+    fun previousHiitExercise() {
+        val prevIdx = (_hiitExerciseIndex.value - 1).coerceAtLeast(0)
+        val prevEx = hiitExercises[prevIdx]
+        _hiitExerciseIndex.value = prevIdx
+        _hiitIsRest.value = false
+        _hiitSecondsLeft.value = prevEx.durationSeconds
         soundFeedback.playBeepShort()
     }
 
-    fun completeCalisthenicsSession(saveToHistory: Boolean = _calisSaveEnabled.value) {
-        // If user clicks Finish during an exercise that ran for at least 10s, count it as well
-        val currentEx = calisExercises.getOrNull(_calisExerciseIndex.value)
-        if (currentEx != null && !_calisIsRest.value) {
-            val spentOnCurrent = currentEx.durationSeconds - _calisSecondsLeft.value
-            if (spentOnCurrent >= 10 && currentEx.id !in _calisSkippedExerciseIds.value) {
-                _calisCompletedExerciseIds.value = _calisCompletedExerciseIds.value + currentEx.id
+    fun completeHiitSession(saveToHistory: Boolean = _hiitSaveEnabled.value) {
+        val currentEx = hiitExercises.getOrNull(_hiitExerciseIndex.value)
+        if (currentEx != null && !_hiitIsRest.value) {
+            val spentOnCurrent = currentEx.durationSeconds - _hiitSecondsLeft.value
+            if (spentOnCurrent >= 8 && currentEx.id !in _hiitSkippedExerciseIds.value) {
+                _hiitCompletedExerciseIds.value = _hiitCompletedExerciseIds.value + currentEx.id
             }
         }
 
-        _calisCompleted.value = true
-        _calisIsActive.value = false
-        calisJob?.cancel()
+        _hiitCompleted.value = true
+        _hiitIsActive.value = false
+        hiitJob?.cancel()
         soundFeedback.playTransitionSuccess()
 
-        val completedCount = _calisCompletedExerciseIds.value.size
+        val completedCount = _hiitCompletedExerciseIds.value.size
         val shouldPersist = saveToHistory && completedCount > 0
-        _calisLastSavedToHistory.value = shouldPersist
+        _hiitLastSavedToHistory.value = shouldPersist
 
         if (shouldPersist) {
-            val duration = _calisTotalElapsedSeconds.value.coerceAtLeast(completedCount * 30)
-            val calories = (completedCount * 10.5f).toInt().coerceAtLeast(12)
-            val totalCount = calisExercises.size
+            val duration = _hiitTotalElapsedSeconds.value.coerceAtLeast(completedCount * 25)
+            val calories = (completedCount * 10.4f).toInt().coerceAtLeast(15)
+            val totalCount = hiitExercises.size
             val tag = if (completedCount >= totalCount) {
-                "Concluído 100% ⭐"
+                "HIIT 100% 🔥"
             } else {
-                "Concluído ($completedCount/$totalCount) ✅"
+                "HIIT ($completedCount/$totalCount) ✅"
             }
 
-            val completedIds = _calisCompletedExerciseIds.value
-            val skippedIds = _calisSkippedExerciseIds.value
-            val phaseLabels = mapOf(
-                1 to "F1 Mobilidade",
-                2 to "F2 Força",
-                3 to "F3 Core",
-                4 to "F4 Finisher"
-            )
-            val phaseSummary = (1..4).joinToString(" • ") { phaseNum ->
-                val phaseExs = calisExercises.filter { it.phaseNumber == phaseNum }
-                val doneInPhase = phaseExs.count { it.id in completedIds }
-                "${phaseLabels[phaseNum]}: $doneInPhase/${phaseExs.size}"
-            }
-            val completedNames = calisExercises.filter { it.id in completedIds }.joinToString(", ") { it.name }
-            val skippedNames = calisExercises.filter { it.id in skippedIds }.joinToString(", ") { it.name }
+            val completedIds = _hiitCompletedExerciseIds.value
+            val skippedIds = _hiitSkippedExerciseIds.value
+            val warmupExs = hiitExercises.filter { it.phaseNumber == 1 }
+            val hiitMainExs = hiitExercises.filter { it.phaseNumber == 2 }
+            val doneWarmup = warmupExs.count { it.id in completedIds }
+            val doneMain = hiitMainExs.count { it.id in completedIds }
+
+            val phaseSummary = "F1 Aquecimento: $doneWarmup/${warmupExs.size} • F2 Cardio HIIT: $doneMain/${hiitMainExs.size}"
+            val completedNames = hiitExercises.filter { it.id in completedIds }.joinToString(", ") { it.name }
+            val skippedNames = hiitExercises.filter { it.id in skippedIds }.joinToString(", ") { it.name }
             val routineSummary = buildString {
                 append(phaseSummary)
                 if (completedNames.isNotBlank()) {
@@ -1056,8 +1091,8 @@ class BitFitViewModel(application: Application) : AndroidViewModel(application) 
             viewModelScope.launch {
                 repository.saveWorkout(
                     WorkoutRecord(
-                        type = "CALISTHENICS",
-                        title = "Calistenia ($completedCount/$totalCount Exercícios)",
+                        type = "HIIT",
+                        title = "HIIT Cardio em Casa ($completedCount/$totalCount Ex.)",
                         timestamp = System.currentTimeMillis(),
                         durationSeconds = duration,
                         distanceMeters = 0,
@@ -1072,26 +1107,243 @@ class BitFitViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    /**
-     * Cancels and discards the current Calisthenics session without saving to SQLite (matches cancelRun).
-     */
-    fun cancelCalisthenics() {
-        resetCalisthenics()
+    fun cancelHiit() {
+        resetHiit()
     }
 
-    fun resetCalisthenics() {
-        calisJob?.cancel()
-        calisJob = null
-        _calisIsActive.value = false
-        _calisIsPaused.value = false
-        _calisCompleted.value = false
-        _calisExerciseIndex.value = 0
-        _calisIsRest.value = false
-        _calisTotalElapsedSeconds.value = 0
-        _calisCompletedExerciseIds.value = emptySet()
-        _calisSkippedExerciseIds.value = emptySet()
-        _calisLastSavedToHistory.value = false
-        _calisSecondsLeft.value = calisExercises.firstOrNull()?.durationSeconds ?: 45
+    fun resetHiit() {
+        hiitJob?.cancel()
+        hiitJob = null
+        _hiitIsActive.value = false
+        _hiitIsPaused.value = false
+        _hiitCompleted.value = false
+        _hiitExerciseIndex.value = 0
+        _hiitIsRest.value = false
+        _hiitTotalElapsedSeconds.value = 0
+        _hiitCompletedExerciseIds.value = emptySet()
+        _hiitSkippedExerciseIds.value = emptySet()
+        _hiitLastSavedToHistory.value = false
+        _hiitSecondsLeft.value = hiitExercises.firstOrNull()?.durationSeconds ?: 20
+    }
+
+    // -------------------------------------------------------------
+    // MÓDULO 3: MUSCULAÇÃO COM ELÁSTICO (SÉRIES, REPS & DESCANSO 60s)
+    // -------------------------------------------------------------
+    private fun ensureElasticElapsedTimerStarted() {
+        if (elasticElapsedJob?.isActive == true) return
+        elasticElapsedJob = viewModelScope.launch {
+            while (true) {
+                delay(1000L)
+                _elasticWorkoutElapsedSeconds.value += 1
+            }
+        }
+    }
+
+    fun logElasticSet(exerciseId: Int, reps: Int) {
+        ensureElasticElapsedTimerStarted()
+        _elasticWorkoutSavedBanner.value = false
+        val exercise = elasticExercises.firstOrNull { it.id == exerciseId } ?: return
+        val currentList = _elasticCompletedSetsMap.value[exerciseId].orEmpty()
+        if (currentList.size >= exercise.targetSets) return
+
+        val updatedList = currentList + reps.coerceIn(1, 50)
+        val updatedMap = _elasticCompletedSetsMap.value.toMutableMap().apply {
+            put(exerciseId, updatedList)
+        }
+        _elasticCompletedSetsMap.value = updatedMap
+
+        val finishedThisExercise = updatedList.size >= exercise.targetSets
+        if (finishedThisExercise) {
+            soundFeedback.playTransitionSuccess()
+            // Avança o destaque automaticamente para o próximo exercício pendente
+            val nextPending = elasticExercises.firstOrNull { ex ->
+                if (ex.isTimedStretch) {
+                    !_elasticStretchCompleted.value
+                } else {
+                    (updatedMap[ex.id]?.size ?: 0) < ex.targetSets
+                }
+            }
+            if (nextPending != null) {
+                _elasticActiveExerciseId.value = nextPending.id
+                _elasticRestTargetExerciseName.value = "Próximo Exercício: ${nextPending.name} (Série 1/${nextPending.targetSets})"
+            } else {
+                _elasticRestTargetExerciseName.value = "Todas as Séries Concluídas! Faça o Alongamento Lombar."
+            }
+        } else {
+            soundFeedback.playBeepShort()
+            _elasticActiveExerciseId.value = exerciseId
+            val nextSetNum = updatedList.size + 1
+            _elasticRestTargetExerciseName.value = "${exercise.name} • Próxima: Série $nextSetNum/${exercise.targetSets} (${exercise.targetRepsRange})"
+        }
+
+        if (exercise.restSeconds > 0) {
+            startElasticRestTimer(exercise.restSeconds)
+        }
+    }
+
+    fun removeLastElasticSet(exerciseId: Int) {
+        val currentList = _elasticCompletedSetsMap.value[exerciseId].orEmpty()
+        if (currentList.isEmpty()) return
+        val updatedList = currentList.dropLast(1)
+        val updatedMap = _elasticCompletedSetsMap.value.toMutableMap()
+        if (updatedList.isEmpty()) {
+            updatedMap.remove(exerciseId)
+        } else {
+            updatedMap[exerciseId] = updatedList
+        }
+        _elasticCompletedSetsMap.value = updatedMap
+        _elasticActiveExerciseId.value = exerciseId
+        soundFeedback.playBeepShort()
+    }
+
+    fun startElasticRestTimer(seconds: Int = 60) {
+        elasticRestJob?.cancel()
+        _elasticRestSecondsLeft.value = seconds.coerceAtLeast(5)
+        elasticRestJob = viewModelScope.launch {
+            while (_elasticRestSecondsLeft.value > 0) {
+                delay(1000L)
+                val left = _elasticRestSecondsLeft.value - 1
+                _elasticRestSecondsLeft.value = left
+                if (left in 1..3) {
+                    soundFeedback.playBeepShort()
+                } else if (left == 0) {
+                    soundFeedback.playTransitionSuccess()
+                }
+            }
+        }
+    }
+
+    fun addElasticRestSeconds(extraSeconds: Int = 15) {
+        if (_elasticRestSecondsLeft.value > 0) {
+            _elasticRestSecondsLeft.value = (_elasticRestSecondsLeft.value + extraSeconds).coerceAtMost(240)
+            soundFeedback.playBeepShort()
+        } else {
+            startElasticRestTimer(extraSeconds)
+        }
+    }
+
+    fun skipElasticRest() {
+        elasticRestJob?.cancel()
+        elasticRestJob = null
+        _elasticRestSecondsLeft.value = 0
+        soundFeedback.playBeepShort()
+    }
+
+    fun toggleElasticStretchTimer() {
+        ensureElasticElapsedTimerStarted()
+        if (_elasticStretchCompleted.value) return
+        if (_elasticStretchRunning.value) {
+            _elasticStretchRunning.value = false
+            elasticStretchJob?.cancel()
+        } else {
+            _elasticStretchRunning.value = true
+            elasticStretchJob?.cancel()
+            elasticStretchJob = viewModelScope.launch {
+                while (_elasticStretchRunning.value && _elasticStretchSecondsLeft.value > 0) {
+                    delay(1000L)
+                    val left = _elasticStretchSecondsLeft.value - 1
+                    _elasticStretchSecondsLeft.value = left
+                    if (left in 1..3) {
+                        soundFeedback.playBeepShort()
+                    } else if (left <= 0) {
+                        _elasticStretchRunning.value = false
+                        _elasticStretchCompleted.value = true
+                        soundFeedback.playTransitionSuccess()
+                    }
+                }
+            }
+        }
+    }
+
+    fun completeElasticStretchNow() {
+        ensureElasticElapsedTimerStarted()
+        elasticStretchJob?.cancel()
+        _elasticStretchRunning.value = false
+        _elasticStretchCompleted.value = true
+        _elasticStretchSecondsLeft.value = 0
+        soundFeedback.playTransitionSuccess()
+    }
+
+    fun finishAndSaveElasticWorkout(onSaved: () -> Unit = {}) {
+        val setsMap = _elasticCompletedSetsMap.value
+        val totalSetsDone = setsMap.values.sumOf { it.size }
+        val totalRepsDone = setsMap.values.sumOf { it.sum() }
+        val stretchDone = _elasticStretchCompleted.value
+
+        if (totalSetsDone == 0 && !stretchDone) return
+
+        val strengthDoneCount = ElasticStrengthExercises.strengthOnly6.count { ex ->
+            (setsMap[ex.id]?.size ?: 0) > 0
+        }
+        val completedExercisesCount = strengthDoneCount + (if (stretchDone) 1 else 0)
+        val duration = _elasticWorkoutElapsedSeconds.value.coerceAtLeast(
+            (totalSetsDone * 90) + (if (stretchDone) 600 else 0)
+        )
+        val calories = ((totalSetsDone * 9.5f) + (if (stretchDone) 35f else 0f)).toInt().coerceAtLeast(25)
+
+        val exerciseBreakdown = ElasticStrengthExercises.strengthOnly6.mapNotNull { ex ->
+            val repsList = setsMap[ex.id].orEmpty()
+            if (repsList.isNotEmpty()) {
+                "${ex.name}: ${repsList.size}x (${repsList.joinToString(",")})"
+            } else {
+                null
+            }
+        }
+
+        val routineSummary = buildString {
+            append("Séries: $totalSetsDone/${ElasticStrengthExercises.totalTargetSets} • Volume: $totalRepsDone reps")
+            if (stretchDone) {
+                append(" • Alongamento Lombar: 10 min ✅")
+            }
+            if (exerciseBreakdown.isNotEmpty()) {
+                append("\n")
+                append(exerciseBreakdown.joinToString(" • "))
+            }
+        }
+
+        val tag = if (totalSetsDone >= ElasticStrengthExercises.totalTargetSets && stretchDone) {
+            "Treino Completo 100% 💪"
+        } else {
+            "$totalSetsDone Séries • $totalRepsDone Reps"
+        }
+
+        viewModelScope.launch {
+            repository.saveWorkout(
+                WorkoutRecord(
+                    type = "ELASTIC",
+                    title = "Musculação c/ Elástico ($totalSetsDone Séries • $totalRepsDone Reps)",
+                    timestamp = System.currentTimeMillis(),
+                    durationSeconds = duration,
+                    distanceMeters = 0,
+                    avgPaceSecondsPerKm = 0,
+                    calories = calories,
+                    tag = tag,
+                    exercisesCount = completedExercisesCount,
+                    routineDetailsJson = routineSummary
+                )
+            )
+            resetElasticWorkout()
+            _elasticWorkoutSavedBanner.value = true
+            soundFeedback.playTransitionSuccess()
+            onSaved()
+        }
+    }
+
+    fun resetElasticWorkout() {
+        elasticRestJob?.cancel()
+        elasticRestJob = null
+        elasticStretchJob?.cancel()
+        elasticStretchJob = null
+        elasticElapsedJob?.cancel()
+        elasticElapsedJob = null
+        _elasticCompletedSetsMap.value = emptyMap()
+        _elasticRestSecondsLeft.value = 0
+        _elasticRestTargetExerciseName.value = ""
+        _elasticActiveExerciseId.value = 1
+        _elasticStretchSecondsLeft.value = 600
+        _elasticStretchRunning.value = false
+        _elasticStretchCompleted.value = false
+        _elasticWorkoutElapsedSeconds.value = 0
     }
 
     // -------------------------------------------------------------
@@ -1180,7 +1432,8 @@ class BitFitViewModel(application: Application) : AndroidViewModel(application) 
     fun resetAllDataAndRestartProfile(onResetComplete: () -> Unit = {}) {
         viewModelScope.launch {
             resetRunState()
-            resetCalisthenics()
+            resetHiit()
+            resetElasticWorkout()
             repository.resetAllData()
             _showProfileSetupModal.value = true
             soundFeedback.playBeepShort()
@@ -1259,6 +1512,9 @@ class BitFitViewModel(application: Application) : AndroidViewModel(application) 
         gpsTracker.stopTracking()
         soundFeedback.release()
         runJob?.cancel()
-        calisJob?.cancel()
+        hiitJob?.cancel()
+        elasticRestJob?.cancel()
+        elasticStretchJob?.cancel()
     }
 }
+

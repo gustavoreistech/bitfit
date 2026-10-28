@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Replay
@@ -79,22 +80,22 @@ import com.example.viewmodel.AppScreen
 import com.example.viewmodel.BitFitViewModel
 
 @Composable
-fun CalisthenicsScreen(
+fun HiitScreen(
     viewModel: BitFitViewModel,
     onNavigate: (AppScreen) -> Unit
 ) {
-    val isActive by viewModel.calisIsActive.collectAsState()
-    val isPaused by viewModel.calisIsPaused.collectAsState()
-    val currentIndex by viewModel.calisExerciseIndex.collectAsState()
-    val isRest by viewModel.calisIsRest.collectAsState()
-    val secondsLeft by viewModel.calisSecondsLeft.collectAsState()
-    val totalElapsed by viewModel.calisTotalElapsedSeconds.collectAsState()
-    val isCompleted by viewModel.calisCompleted.collectAsState()
-    val completedExerciseIds by viewModel.calisCompletedExerciseIds.collectAsState()
-    val skippedExerciseIds by viewModel.calisSkippedExerciseIds.collectAsState()
-    val saveEnabled by viewModel.calisSaveEnabled.collectAsState()
-    val lastSavedToHistory by viewModel.calisLastSavedToHistory.collectAsState()
-    val exercises = viewModel.calisExercises
+    val isActive by viewModel.hiitIsActive.collectAsState()
+    val isPaused by viewModel.hiitIsPaused.collectAsState()
+    val currentIndex by viewModel.hiitExerciseIndex.collectAsState()
+    val isRest by viewModel.hiitIsRest.collectAsState()
+    val secondsLeft by viewModel.hiitSecondsLeft.collectAsState()
+    val totalElapsed by viewModel.hiitTotalElapsedSeconds.collectAsState()
+    val isCompleted by viewModel.hiitCompleted.collectAsState()
+    val completedExerciseIds by viewModel.hiitCompletedExerciseIds.collectAsState()
+    val skippedExerciseIds by viewModel.hiitSkippedExerciseIds.collectAsState()
+    val saveEnabled by viewModel.hiitSaveEnabled.collectAsState()
+    val lastSavedToHistory by viewModel.hiitLastSavedToHistory.collectAsState()
+    val exercises = viewModel.hiitExercises
 
     var showDetailExercise by remember { mutableStateOf<Exercise?>(null) }
     var showDiscardDialog by remember { mutableStateOf(false) }
@@ -104,38 +105,40 @@ fun CalisthenicsScreen(
 
     Column(modifier = Modifier.fillMaxSize()) {
         BitFitTopAppBar(
-            title = "CALISTENIA",
+            title = "HIIT CARDIO (25 MIN)",
             subtitle = if (isActive) {
-                "FASE ${currentExercise.phaseNumber}/4 • EX ${currentIndex + 1}/${exercises.size} • ${completedExerciseIds.size} CONCLUÍDOS ✅"
+                "FASE ${currentExercise.phaseNumber}/2 • EX ${currentIndex + 1}/${exercises.size} • ${completedExerciseIds.size} CONCLUÍDOS ✅"
             } else {
-                "4 FASES PARA INICIANTES • ${exercises.size} EXERCÍCIOS"
-            }
+                "SEG / QUA / SEX • 7 AQUECIMENTO + 20 CARDIO HIIT"
+            },
+            onTuneClick = { onNavigate(AppScreen.GOALS) }
         )
 
         when {
             isCompleted -> {
-                CalisthenicsCompletedView(
+                HiitCompletedView(
                     totalElapsed = totalElapsed,
                     completedCount = completedExerciseIds.size,
                     skippedCount = skippedExerciseIds.size,
                     totalExerciseCount = exercises.size,
                     wasSavedToHistory = lastSavedToHistory,
                     onViewHistory = {
-                        viewModel.resetCalisthenics()
+                        viewModel.resetHiit()
                         onNavigate(AppScreen.HISTORY)
                     },
                     onRestart = {
-                        viewModel.resetCalisthenics()
-                        viewModel.startCalisthenics(0)
+                        viewModel.resetHiit()
+                        viewModel.startHiit(0)
                     },
                     onBackToOverview = {
-                        viewModel.resetCalisthenics()
+                        viewModel.resetHiit()
                     }
                 )
             }
 
             isActive -> {
-                CalisthenicsActiveView(
+                val displayedExercise = if (isRest && nextExercise != null) nextExercise else currentExercise
+                HiitActiveView(
                     exercises = exercises,
                     currentExercise = currentExercise,
                     nextExercise = nextExercise,
@@ -148,49 +151,48 @@ fun CalisthenicsScreen(
                     isPaused = isPaused,
                     secondsLeft = secondsLeft,
                     totalElapsed = totalElapsed,
-                    onToggleSaveMode = { viewModel.toggleCalisSaveEnabled() },
+                    onToggleSaveMode = { viewModel.toggleHiitSaveEnabled() },
                     onPauseToggle = {
-                        if (isPaused) viewModel.resumeCalisthenics() else viewModel.pauseCalisthenics()
+                        if (isPaused) viewModel.resumeHiit() else viewModel.pauseHiit()
                     },
-                    onPrevious = { viewModel.previousExercise() },
-                    onNextSuccess = { viewModel.nextExercise() },
-                    onSkipWithoutRecording = { viewModel.skipExerciseWithoutRecording() },
-                    onAdd15s = { viewModel.addCalisthenicsSeconds(15) },
+                    onPrevious = { viewModel.previousHiitExercise() },
+                    onNextSuccess = { viewModel.nextHiitExercise() },
+                    onSkipWithoutRecording = { viewModel.skipHiitExerciseWithoutRecording() },
+                    onAdd15s = { viewModel.addHiitSeconds(15) },
                     onFinishAndSave = {
-                        viewModel.completeCalisthenicsSession(saveToHistory = saveEnabled)
+                        viewModel.completeHiitSession(saveToHistory = saveEnabled)
                     },
                     onRequestDiscard = { showDiscardDialog = true },
-                    onOpenDetail = { showDetailExercise = currentExercise }
+                    onOpenDetail = { showDetailExercise = displayedExercise }
                 )
             }
 
             else -> {
-                CalisthenicsOverviewView(
+                HiitOverviewView(
                     exercises = exercises,
                     completedExerciseIds = completedExerciseIds,
                     skippedExerciseIds = skippedExerciseIds,
                     saveEnabled = saveEnabled,
-                    onToggleSaveMode = { viewModel.toggleCalisSaveEnabled() },
-                    onStartAll = { viewModel.startCalisthenics(0) },
-                    onStartAt = { idx -> viewModel.startCalisthenics(idx) },
+                    onToggleSaveMode = { viewModel.toggleHiitSaveEnabled() },
+                    onStartAll = { viewModel.startHiit(0) },
+                    onStartAt = { idx -> viewModel.startHiit(idx) },
                     onSelectExercise = { ex -> showDetailExercise = ex }
                 )
             }
         }
     }
 
-    // Dialog de Descartar / Não Gravar Treino (igual ao da aba Corrida!)
     if (showDiscardDialog) {
         AlertDialog(
             onDismissRequest = { showDiscardDialog = false },
-            title = { Text("Descartar Treino de Calistenia?") },
+            title = { Text("Descartar Treino HIIT Cardio?") },
             text = {
                 Text("Esta sessão será encerrada agora e não será gravada no histórico de treinos.")
             },
             confirmButton = {
                 Button(
                     onClick = {
-                        viewModel.cancelCalisthenics()
+                        viewModel.cancelHiit()
                         showDiscardDialog = false
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = TertiaryOrange)
@@ -206,27 +208,23 @@ fun CalisthenicsScreen(
         )
     }
 
-    // Modal com a foto ampliada em alta definição e dicas para iniciantes
     showDetailExercise?.let { ex ->
         val exIdx = (ex.id - 1).coerceAtLeast(0)
-        ExerciseDetailDialog(
+        HiitExerciseDetailDialog(
             exercise = ex,
             totalExercises = exercises.size,
             isWorkoutActive = isActive,
             onStartFromHere = {
                 showDetailExercise = null
-                viewModel.startCalisthenics(exIdx)
+                viewModel.startHiit(exIdx)
             },
             onDismiss = { showDetailExercise = null }
         )
     }
 }
 
-// =============================================================================
-// SUB-TELA 1: VISÃO GERAL E CRONOGRAMA NAS 4 FASES SEQUENCIAIS PARA INICIANTES
-// =============================================================================
 @Composable
-private fun CalisthenicsOverviewView(
+private fun HiitOverviewView(
     exercises: List<Exercise>,
     completedExerciseIds: Set<Int>,
     skippedExerciseIds: Set<Int>,
@@ -236,7 +234,7 @@ private fun CalisthenicsOverviewView(
     onStartAt: (Int) -> Unit,
     onSelectExercise: (Exercise) -> Unit
 ) {
-    var selectedPhase by remember { mutableIntStateOf(0) } // 0 = Todas as 4 Fases, 1..4 = Fases 1..4
+    var selectedPhase by remember { mutableIntStateOf(0) } // 0 = Todas, 1 = Aquecimento, 2 = Cardio HIIT
     val filteredExercises = remember(exercises, selectedPhase) {
         if (selectedPhase == 0) exercises else exercises.filter { it.phaseNumber == selectedPhase }
     }
@@ -246,7 +244,6 @@ private fun CalisthenicsOverviewView(
             .fillMaxSize()
             .padding(horizontal = 16.dp, vertical = 6.dp)
     ) {
-        // CARD PRINCIPAL FIXO NO TOPO COM O BOTÃO DE PLAY IMEDIATO + OPÇÃO DE GRAVAÇÃO
         GlassCard(
             modifier = Modifier.fillMaxWidth(),
             cornerRadius = 18.dp
@@ -264,18 +261,18 @@ private fun CalisthenicsOverviewView(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Rotina Iniciante em 4 Fases (${exercises.size} Exercícios)",
+                            text = "HIIT Cardio em Casa (${exercises.size} Exercícios)",
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
                             color = OnSurface
                         )
                         Text(
-                            text = "1. Mobilidade • 2. Força (+Puxada) • 3. Core • 4. Finisher",
+                            text = "F1: 7 Aquecimento (20s) • F2: 20 Cardio HIIT (45s/15s)",
                             fontSize = 11.sp,
                             color = SecondaryCyan
                         )
                     }
-                    NeonBadge(text = "~21 MIN • 220 KCAL", color = PrimaryNeon)
+                    NeonBadge(text = "25 MIN • ~280 KCAL", color = TertiaryOrange)
                 }
 
                 // Seletor Modo Gravar vs Modo Sem Gravar
@@ -307,14 +304,14 @@ private fun CalisthenicsOverviewView(
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
                             Text(
-                                text = if (saveEnabled) "GRAVAR TREINO NO HISTÓRICO: ATIVO" else "MODO SEM GRAVAR (APENAS PRATICAR)",
+                                text = if (saveEnabled) "GRAVAR HIIT NO HISTÓRICO: ATIVO" else "MODO SEM GRAVAR (APENAS PRATICAR)",
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = if (saveEnabled) PrimaryNeon else TertiaryOrange
                             )
                             Text(
                                 text = if (saveEnabled) {
-                                    "Avança no tempo marcando sucesso ✅ • Toque para não gravar"
+                                    "No descanso de 15s mostra a foto grande do PRÓXIMO exercício!"
                                 } else {
                                     "O treino não será salvo no histórico ao finalizar"
                                 },
@@ -342,7 +339,6 @@ private fun CalisthenicsOverviewView(
                     }
                 }
 
-                // O BOTÃO DE PLAY FICA DIRETO NO TOPO — VISÍVEL SEM SCROLL!
                 Button(
                     onClick = onStartAll,
                     colors = ButtonDefaults.buttonColors(
@@ -351,18 +347,18 @@ private fun CalisthenicsOverviewView(
                     ),
                     shape = RoundedCornerShape(18.dp),
                     modifier = Modifier
-                        .testTag("btn_start_calisthenics")
+                        .testTag("btn_start_hiit")
                         .fillMaxWidth()
                         .height(48.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.PlayArrow,
-                        contentDescription = "Iniciar Treino",
-                        modifier = Modifier.size(24.dp)
+                        imageVector = Icons.Default.LocalFireDepartment,
+                        contentDescription = "Iniciar HIIT",
+                        modifier = Modifier.size(22.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = if (saveEnabled) "INICIAR TREINO NAS 4 FASES AGORA" else "INICIAR SEM GRAVAR NO HISTÓRICO",
+                        text = if (saveEnabled) "INICIAR HIIT CARDIO (25 MIN)" else "INICIAR HIIT SEM GRAVAR",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 0.4.sp
@@ -373,20 +369,17 @@ private fun CalisthenicsOverviewView(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // FILTRO RÁPIDO DAS 4 FASES FISIOLÓGICAS
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             val filters = listOf(
-                0 to "Todas (${exercises.size})",
-                1 to "F1: Mobilidade (5)",
-                2 to "F2: Força (5)",
-                3 to "F3: Core (6)",
-                4 to "F4: Finisher (5)"
+                0 to "Todos (${exercises.size})",
+                1 to "Fase 1: Aquecimento (7 • 20s)",
+                2 to "Fase 2: Cardio HIIT (20 • 45s/15s)"
             )
             filters.forEach { (phaseId, label) ->
                 val isSelected = selectedPhase == phaseId
@@ -415,13 +408,12 @@ private fun CalisthenicsOverviewView(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // LISTA DOS EXERCÍCIOS COM IMAGENS GRANDES E NÍTIDAS + DICA INICIANTE
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             itemsIndexed(filteredExercises, key = { _, ex -> ex.id }) { _, exercise ->
-                ExerciseListItemCard(
+                HiitExerciseListItemCard(
                     exercise = exercise,
                     isCompleted = exercise.id in completedExerciseIds,
                     isSkipped = exercise.id in skippedExerciseIds,
@@ -438,19 +430,14 @@ private fun CalisthenicsOverviewView(
 }
 
 @Composable
-private fun ExerciseListItemCard(
+private fun HiitExerciseListItemCard(
     exercise: Exercise,
     isCompleted: Boolean,
     isSkipped: Boolean,
     onClick: () -> Unit,
     onStartHere: () -> Unit
 ) {
-    val phaseBadgeColor = when (exercise.phaseNumber) {
-        1 -> SecondaryCyan
-        2 -> PrimaryNeon
-        3 -> Color(0xFF38BDF8)
-        else -> TertiaryOrange
-    }
+    val phaseBadgeColor = if (exercise.phaseNumber == 1) SecondaryCyan else TertiaryOrange
 
     GlassCard(
         modifier = Modifier
@@ -469,10 +456,8 @@ private fun ExerciseListItemCard(
                 .padding(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // IMAGEM GRANDE E DESTACADA DO EXERCÍCIO (132dp x 88dp em fundo branco de estúdio!)
             Box(
-                modifier = Modifier
-                    .size(width = 132.dp, height = 88.dp)
+                modifier = Modifier.size(width = 132.dp, height = 88.dp)
             ) {
                 ExerciseIllustration(
                     exerciseId = exercise.id,
@@ -481,7 +466,6 @@ private fun ExerciseListItemCard(
                     cornerRadius = 12.dp
                 )
 
-                // Badge com o número do exercício e fase no canto superior esquerdo da imagem
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopStart)
@@ -498,7 +482,6 @@ private fun ExerciseListItemCard(
                     )
                 }
 
-                // Ícone de lupa discreto no canto inferior direito
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
@@ -519,7 +502,6 @@ private fun ExerciseListItemCard(
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // INFORMAÇÕES, DICA INICIANTE E AÇÃO RÁPIDA AO LADO DA IMAGEM GRANDE
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(3.dp)
@@ -563,28 +545,19 @@ private fun ExerciseListItemCard(
                 ) {
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                         if (isCompleted) {
-                            NeonBadge(
-                                text = "CONCLUÍDO ✅",
-                                color = PrimaryNeon
-                            )
+                            NeonBadge(text = "CONCLUÍDO ✅", color = PrimaryNeon)
                         } else if (isSkipped) {
-                            NeonBadge(
-                                text = "PULADO",
-                                color = TertiaryOrange
-                            )
+                            NeonBadge(text = "PULADO", color = TertiaryOrange)
                         } else {
-                            NeonBadge(
-                                text = "${exercise.durationSeconds}s",
-                                color = PrimaryNeon
-                            )
-                            NeonBadge(
-                                text = "${exercise.restSeconds}s desc",
-                                color = TertiaryOrange
-                            )
+                            NeonBadge(text = "${exercise.durationSeconds}s", color = PrimaryNeon)
+                            if (exercise.restSeconds > 0) {
+                                NeonBadge(text = "${exercise.restSeconds}s desc", color = TertiaryOrange)
+                            } else {
+                                NeonBadge(text = "Contínuo", color = SecondaryCyan)
+                            }
                         }
                     }
 
-                    // Botão rápido para iniciar a partir deste exercício
                     Box(
                         modifier = Modifier
                             .size(28.dp)
@@ -608,11 +581,11 @@ private fun ExerciseListItemCard(
 }
 
 // =============================================================================
-// SUB-TELA 2: TREINO ATIVO
-// AVANÇO AUTOMÁTICO ENTRE EXERCÍCIOS MARCANDO SUCESSO ✅ + OPÇÃO NÃO GRAVAR!
+// SUB-TELA 2: TREINO HIIT ATIVO
+// REGRA 4: QUANDO isRest == true, EXIBE EM DESTAQUE A FOTO GRANDE E NOME DO PRÓXIMO EXERCÍCIO!
 // =============================================================================
 @Composable
-private fun CalisthenicsActiveView(
+private fun HiitActiveView(
     exercises: List<Exercise>,
     currentExercise: Exercise,
     nextExercise: Exercise?,
@@ -635,8 +608,11 @@ private fun CalisthenicsActiveView(
     onRequestDiscard: () -> Unit,
     onOpenDetail: () -> Unit
 ) {
-    val maxDuration = if (isRest) currentExercise.restSeconds else currentExercise.durationSeconds
-    val timerProgress = (secondsLeft.toFloat() / maxDuration.coerceAtLeast(1)).coerceIn(0f, 1f)
+    val maxDuration = if (isRest) currentExercise.restSeconds.coerceAtLeast(1) else currentExercise.durationSeconds.coerceAtLeast(1)
+    val timerProgress = (secondsLeft.toFloat() / maxDuration).coerceIn(0f, 1f)
+
+    // REGRA 4: Durante o descanso (isRest == true), o destaque principal passa imediatamente para o PRÓXIMO exercício!
+    val featuredExercise = if (isRest && nextExercise != null) nextExercise else currentExercise
 
     Column(
         modifier = Modifier
@@ -644,7 +620,7 @@ private fun CalisthenicsActiveView(
             .padding(horizontal = 16.dp, vertical = 4.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        // 1. BARRA DE PROGRESSO SUPERIOR + TRILHA DE EXERCÍCIOS CONCLUÍDOS COM SUCESSO ✅
+        // 1. BARRA DE PROGRESSO SUPERIOR + TRILHA DE EXERCÍCIOS
         Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -659,18 +635,18 @@ private fun CalisthenicsActiveView(
                         modifier = Modifier
                             .size(9.dp)
                             .clip(CircleShape)
-                            .background(if (isRest) PrimaryNeon else SecondaryCyan)
+                            .background(if (isRest) TertiaryOrange else PrimaryNeon)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = if (isRest) {
-                            "✅ #${currentExercise.id} CONCLUÍDO! • PRÓXIMO EM ${secondsLeft}s"
+                            "✅ #${currentExercise.id} CONCLUÍDO! • DESCANSO DE ${currentExercise.restSeconds}s"
                         } else {
-                            currentExercise.phaseName.uppercase()
+                            "${currentExercise.phaseName.uppercase()} • EX ${currentIndex + 1}/$totalExercises"
                         },
                         fontSize = 10.sp,
                         fontWeight = FontWeight.ExtraBold,
-                        color = if (isRest) PrimaryNeon else SecondaryCyan,
+                        color = if (isRest) TertiaryOrange else SecondaryCyan,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -678,7 +654,6 @@ private fun CalisthenicsActiveView(
 
                 Spacer(modifier = Modifier.width(6.dp))
 
-                // Pill clicável para alternar Gravar vs Não Gravar durante o treino
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))
@@ -695,7 +670,7 @@ private fun CalisthenicsActiveView(
                         .padding(horizontal = 8.dp, vertical = 3.dp)
                 ) {
                     Text(
-                        text = if (saveEnabled) "GRAVANDO • ${formatTime(totalElapsed)}" else "SEM GRAVAR • ${formatTime(totalElapsed)}",
+                        text = if (saveEnabled) "GRAVANDO • ${formatHiitTime(totalElapsed)}" else "SEM GRAVAR • ${formatHiitTime(totalElapsed)}",
                         fontSize = 10.sp,
                         color = if (saveEnabled) PrimaryNeon else TertiaryOrange,
                         fontWeight = FontWeight.Bold
@@ -713,7 +688,6 @@ private fun CalisthenicsActiveView(
                 trackColor = SurfaceContainerHigh
             )
 
-            // Trilha horizontal mostrando os exercícios concluídos com sucesso (✅), atual e pulados
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -766,12 +740,13 @@ private fun CalisthenicsActiveView(
             }
         }
 
-        // 2. CARD CENTRAL COM FOTO GRANDE (190.dp) + DICA INICIANTE + CRONÔMETRO AUTOMÁTICO
+        // 2. CARD CENTRAL COM DESTAQUE DO PRÓXIMO EXERCÍCIO DURANTE O DESCANSO (REGRA 4!)
         GlassCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f, fill = false),
-            cornerRadius = 18.dp
+            cornerRadius = 18.dp,
+            borderColor = if (isRest) TertiaryOrange.copy(alpha = 0.7f) else PrimaryNeon.copy(alpha = 0.35f)
         ) {
             Column(
                 modifier = Modifier
@@ -780,7 +755,28 @@ private fun CalisthenicsActiveView(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                // FOTO AMPLIADA DE ALTA NITIDEZ DO EXERCÍCIO ATUAL (190.dp de altura!)
+                if (isRest) {
+                    // BANNER VIBRANTE OBRIGATÓRIO DURANTE OS 15s DE DESCANSO
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(TertiaryOrange.copy(alpha = 0.22f))
+                            .border(1.5.dp, TertiaryOrange, RoundedCornerShape(10.dp))
+                            .padding(horizontal = 10.dp, vertical = 6.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "⏸️ DESCANSO (${secondsLeft}s) • PRÓXIMO EXERCÍCIO:",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = TertiaryOrange,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+
+                // FOTO GRANDE (190.dp) DO EXERCÍCIO EM DESTAQUE (PRÓXIMO EXERCÍCIO QUANDO EM DESCANSO!)
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -789,41 +785,39 @@ private fun CalisthenicsActiveView(
                     contentAlignment = Alignment.Center
                 ) {
                     ExerciseIllustration(
-                        exerciseId = currentExercise.id,
-                        drawableResId = currentExercise.drawableResId,
+                        exerciseId = featuredExercise.id,
+                        drawableResId = featuredExercise.drawableResId,
                         modifier = Modifier.fillMaxSize(),
                         isRest = isRest,
                         cornerRadius = 14.dp
                     )
 
-                    // Badge superior esquerdo com número do exercício e fase
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopStart)
                             .padding(8.dp)
                             .clip(RoundedCornerShape(8.dp))
-                            .background(Color(0xFF0B1326).copy(alpha = 0.88f))
+                            .background(Color(0xFF0B1326).copy(alpha = 0.90f))
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                     ) {
                         Text(
-                            text = if (currentExercise.id in completedExerciseIds) {
-                                "EX ${currentIndex + 1}/$totalExercises • FASE ${currentExercise.phaseNumber} ✅"
+                            text = if (isRest) {
+                                "PRÓXIMO: #${featuredExercise.id}/$totalExercises (${featuredExercise.durationSeconds}s)"
                             } else {
-                                "EXERCÍCIO ${currentIndex + 1}/$totalExercises • FASE ${currentExercise.phaseNumber}"
+                                "AGORA: #${featuredExercise.id}/$totalExercises • FASE ${featuredExercise.phaseNumber}"
                             },
                             fontSize = 10.sp,
                             fontWeight = FontWeight.ExtraBold,
-                            color = PrimaryNeon
+                            color = if (isRest) TertiaryOrange else PrimaryNeon
                         )
                     }
 
-                    // Tag inferior direita para ampliar
                     Box(
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
                             .padding(8.dp)
                             .clip(RoundedCornerShape(8.dp))
-                            .background(Color(0xFF0B1326).copy(alpha = 0.82f))
+                            .background(Color(0xFF0B1326).copy(alpha = 0.84f))
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -835,7 +829,7 @@ private fun CalisthenicsActiveView(
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "Ver Instruções",
+                                text = "Ampliar",
                                 fontSize = 10.sp,
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold
@@ -844,35 +838,31 @@ private fun CalisthenicsActiveView(
                     }
                 }
 
-                // Nome, Músculo e Dica de Execução para Iniciante
+                // NOME EM FONTE GRANDE (18.sp Bold), GRUPO MUSCULAR, INSTRUÇÃO E DICA TÉCNICA DO EXERCÍCIO EM DESTAQUE
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = currentExercise.name,
-                        fontSize = 15.sp,
+                        text = featuredExercise.name,
+                        fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = OnSurface,
+                        color = if (isRest) PrimaryNeon else OnSurface,
                         textAlign = TextAlign.Center,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        text = if (isRest) {
-                            "✅ Exercício anterior marcado com sucesso! Prepare-se para o próximo"
-                        } else {
-                            currentExercise.muscleGroup
-                        },
-                        fontSize = 10.sp,
+                        text = featuredExercise.muscleGroup,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (isRest) PrimaryNeon else SecondaryCyan,
+                        color = SecondaryCyan,
                         textAlign = TextAlign.Center,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        text = if (currentExercise.beginnerTip.isNotBlank()) {
-                            "💡 Iniciante: ${currentExercise.beginnerTip}"
+                        text = if (featuredExercise.beginnerTip.isNotBlank()) {
+                            "${featuredExercise.instruction} • 💡 ${featuredExercise.beginnerTip}"
                         } else {
-                            currentExercise.instruction
+                            featuredExercise.instruction
                         },
                         fontSize = 11.sp,
                         color = OnSurfaceVariant,
@@ -895,7 +885,7 @@ private fun CalisthenicsActiveView(
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
-                            modifier = Modifier.size(46.dp),
+                            modifier = Modifier.size(48.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             CircularProgressIndicator(
@@ -912,7 +902,7 @@ private fun CalisthenicsActiveView(
                             )
                             Text(
                                 text = "${secondsLeft}s",
-                                fontSize = 14.sp,
+                                fontSize = 15.sp,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = OnSurface
                             )
@@ -922,7 +912,7 @@ private fun CalisthenicsActiveView(
 
                         Column {
                             Text(
-                                text = if (isRest) "DESCANSO AUTOMÁTICO" else "AVANÇO AUTOMÁTICO ATIVO",
+                                text = if (isRest) "PAUSA DE RECUPERAÇÃO (15s)" else "EM EXECUÇÃO (${currentExercise.durationSeconds}s)",
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = if (isRest) TertiaryOrange else PrimaryNeon
@@ -930,17 +920,19 @@ private fun CalisthenicsActiveView(
                             Text(
                                 text = when {
                                     isPaused -> "TREINO PAUSADO"
-                                    isRest -> "Pula p/ #${(currentIndex + 2).coerceAtMost(totalExercises)} em ${secondsLeft}s"
-                                    else -> "Conclui ✅ em ${secondsLeft}s sem tocar"
+                                    isRest -> "Começa ${featuredExercise.name} em ${secondsLeft}s!"
+                                    currentExercise.restSeconds > 0 -> "Descanso de ${currentExercise.restSeconds}s começa em ${secondsLeft}s"
+                                    else -> "Avança direto p/ próximo em ${secondsLeft}s"
                                 },
                                 fontSize = 11.sp,
                                 color = if (isPaused) TertiaryOrange else OnSurfaceVariant,
-                                fontWeight = if (isPaused) FontWeight.Bold else FontWeight.Normal
+                                fontWeight = if (isPaused) FontWeight.Bold else FontWeight.Normal,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                     }
 
-                    // Botão rápido +15s
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(10.dp))
@@ -966,8 +958,8 @@ private fun CalisthenicsActiveView(
                     }
                 }
 
-                // PRÓXIMO EXERCÍCIO COM MINIATURA (52.dp x 36.dp)
-                if (nextExercise != null) {
+                // Quando está em execução (isRest == false), mostra a miniatura do próximo exercício na barra inferior do card
+                if (!isRest && nextExercise != null) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -984,13 +976,13 @@ private fun CalisthenicsActiveView(
                             ExerciseIllustration(
                                 exerciseId = nextExercise.id,
                                 drawableResId = nextExercise.drawableResId,
-                                modifier = Modifier.size(width = 52.dp, height = 36.dp),
+                                modifier = Modifier.size(width = 50.dp, height = 34.dp),
                                 cornerRadius = 8.dp
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
                                 Text(
-                                    text = "PRÓXIMO AUTOMÁTICO (#${nextExercise.id} • F${nextExercise.phaseNumber})",
+                                    text = "PRÓXIMO (#${nextExercise.id} • F${nextExercise.phaseNumber})",
                                     fontSize = 9.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = PrimaryNeon
@@ -1014,14 +1006,13 @@ private fun CalisthenicsActiveView(
             }
         }
 
-        // 3. CONTROLES DOCKADOS NA BASE (SEMPRE VISÍVEIS SEM SCROLL!)
+        // 3. CONTROLES DOCKADOS NA BASE
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 6.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            // Linha 1: Anterior | Pausar/Retomar | Concluir ✅ | Pular (Não Fiz)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -1036,7 +1027,7 @@ private fun CalisthenicsActiveView(
                     contentPadding = PaddingValues(0.dp),
                     shape = RoundedCornerShape(14.dp),
                     modifier = Modifier
-                        .testTag("btn_calis_prev")
+                        .testTag("btn_hiit_prev")
                         .weight(0.75f)
                         .height(44.dp)
                 ) {
@@ -1056,7 +1047,7 @@ private fun CalisthenicsActiveView(
                     contentPadding = PaddingValues(horizontal = 8.dp),
                     shape = RoundedCornerShape(14.dp),
                     modifier = Modifier
-                        .testTag("btn_calis_pause_toggle")
+                        .testTag("btn_hiit_pause_toggle")
                         .weight(1.35f)
                         .height(44.dp)
                 ) {
@@ -1082,7 +1073,7 @@ private fun CalisthenicsActiveView(
                     contentPadding = PaddingValues(horizontal = 6.dp),
                     shape = RoundedCornerShape(14.dp),
                     modifier = Modifier
-                        .testTag("btn_calis_skip")
+                        .testTag("btn_hiit_skip")
                         .weight(1.1f)
                         .height(44.dp)
                 ) {
@@ -1093,8 +1084,8 @@ private fun CalisthenicsActiveView(
                     )
                     Spacer(modifier = Modifier.width(3.dp))
                     Text(
-                        text = "FEITO ✅",
-                        fontSize = 11.sp,
+                        text = if (isRest) "PULAR PAUSA" else "FEITO ✅",
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -1108,7 +1099,7 @@ private fun CalisthenicsActiveView(
                     contentPadding = PaddingValues(horizontal = 6.dp),
                     shape = RoundedCornerShape(14.dp),
                     modifier = Modifier
-                        .testTag("btn_calis_skip_unrecorded")
+                        .testTag("btn_hiit_skip_unrecorded")
                         .weight(1.1f)
                         .height(44.dp)
                 ) {
@@ -1126,7 +1117,6 @@ private fun CalisthenicsActiveView(
                 }
             }
 
-            // Linha 2: Salvar/Finalizar + Descartar Sem Gravar (igual à aba Corrida!)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -1137,7 +1127,7 @@ private fun CalisthenicsActiveView(
                     shape = RoundedCornerShape(14.dp),
                     contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
                     modifier = Modifier
-                        .testTag("btn_calis_discard")
+                        .testTag("btn_hiit_discard")
                         .weight(1f)
                         .height(38.dp)
                 ) {
@@ -1167,7 +1157,7 @@ private fun CalisthenicsActiveView(
                     contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
                     shape = RoundedCornerShape(14.dp),
                     modifier = Modifier
-                        .testTag("btn_calis_finish")
+                        .testTag("btn_hiit_finish")
                         .weight(1.2f)
                         .height(38.dp)
                 ) {
@@ -1190,11 +1180,8 @@ private fun CalisthenicsActiveView(
     }
 }
 
-// =============================================================================
-// SUB-TELA 3: SESSÃO CONCLUÍDA
-// =============================================================================
 @Composable
-private fun CalisthenicsCompletedView(
+private fun HiitCompletedView(
     totalElapsed: Int,
     completedCount: Int,
     skippedCount: Int,
@@ -1204,7 +1191,7 @@ private fun CalisthenicsCompletedView(
     onRestart: () -> Unit,
     onBackToOverview: () -> Unit
 ) {
-    val estimatedCalories = if (completedCount > 0) (completedCount * 10.5f).toInt().coerceAtLeast(12) else 0
+    val estimatedCalories = if (completedCount > 0) (completedCount * 10.4f).toInt().coerceAtLeast(15) else 0
 
     Column(
         modifier = Modifier
@@ -1234,14 +1221,14 @@ private fun CalisthenicsCompletedView(
                 ) {
                     Icon(
                         imageVector = Icons.Default.CheckCircle,
-                        contentDescription = "Treino Concluído",
+                        contentDescription = "HIIT Concluído",
                         tint = PrimaryNeon,
                         modifier = Modifier.size(42.dp)
                     )
                 }
 
                 Text(
-                    text = "Sessão de Calistenia Finalizada! ⭐",
+                    text = "HIIT Cardio Finalizado! 🔥",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = OnSurface,
@@ -1250,9 +1237,9 @@ private fun CalisthenicsCompletedView(
 
                 Text(
                     text = if (wasSavedToHistory) {
-                        "Você concluiu $completedCount de $totalExerciseCount exercícios com sucesso ✅. O treino foi salvo no seu Histórico!"
+                        "Você concluiu $completedCount de $totalExerciseCount exercícios com sucesso ✅. Seu treino HIIT foi registrado no Histórico!"
                     } else {
-                        "Sessão concluída no Modo Sem Gravar ($completedCount exercícios feitos). Nenhum dado foi gravado no Histórico."
+                        "Sessão HIIT concluída no Modo Sem Gravar ($completedCount exercícios feitos)."
                     },
                     fontSize = 13.sp,
                     color = OnSurfaceVariant,
@@ -1271,11 +1258,11 @@ private fun CalisthenicsCompletedView(
                             fontWeight = FontWeight.Bold,
                             color = PrimaryNeon
                         )
-                        Text(text = "Com Sucesso ✅", fontSize = 11.sp, color = OnSurfaceVariant)
+                        Text(text = "Exercícios ✅", fontSize = 11.sp, color = OnSurfaceVariant)
                     }
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = formatTime(totalElapsed),
+                            text = formatHiitTime(totalElapsed),
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             color = SecondaryCyan
@@ -1289,13 +1276,13 @@ private fun CalisthenicsCompletedView(
                             fontWeight = FontWeight.Bold,
                             color = TertiaryOrange
                         )
-                        Text(text = "Gasto Real", fontSize = 11.sp, color = OnSurfaceVariant)
+                        Text(text = "Queima HIIT", fontSize = 11.sp, color = OnSurfaceVariant)
                     }
                 }
 
                 if (skippedCount > 0) {
                     Text(
-                        text = "$skippedCount exercício(s) pulado(s) sem gravar",
+                        text = "$skippedCount exercício(s) pulado(s)",
                         fontSize = 11.sp,
                         color = TertiaryOrange,
                         fontWeight = FontWeight.SemiBold
@@ -1314,7 +1301,7 @@ private fun CalisthenicsCompletedView(
                         .height(50.dp)
                 ) {
                     Text(
-                        text = if (wasSavedToHistory) "Ver Histórico de Treinos" else "Voltar para Calistenia",
+                        text = if (wasSavedToHistory) "Ver Histórico de Treinos" else "Voltar ao HIIT",
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp
                     )
@@ -1329,23 +1316,20 @@ private fun CalisthenicsCompletedView(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Replay,
-                        contentDescription = "Refazer Treino",
+                        contentDescription = "Refazer HIIT",
                         tint = OnSurface,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("Refazer Rotina", color = OnSurface, fontWeight = FontWeight.SemiBold)
+                    Text("Refazer HIIT Cardio", color = OnSurface, fontWeight = FontWeight.SemiBold)
                 }
             }
         }
     }
 }
 
-// =============================================================================
-// MODAL DE DETALHES COM A FOTO REAL GIGANTE (220.dp) + DICAS PARA INICIANTES
-// =============================================================================
 @Composable
-private fun ExerciseDetailDialog(
+private fun HiitExerciseDetailDialog(
     exercise: Exercise,
     totalExercises: Int,
     isWorkoutActive: Boolean,
@@ -1383,7 +1367,6 @@ private fun ExerciseDetailDialog(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                // Foto em alta resolução em fundo branco de estúdio
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -1407,8 +1390,7 @@ private fun ExerciseDetailDialog(
                         text = "MÚSCULOS RECRUTADOS:",
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
-                        color = SecondaryCyan,
-                        letterSpacing = 0.5.sp
+                        color = SecondaryCyan
                     )
                     Text(
                         text = exercise.muscleGroup,
@@ -1420,11 +1402,10 @@ private fun ExerciseDetailDialog(
 
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(
-                        text = "TÉCNICA E POSTURA:",
+                        text = "EXECUÇÃO:",
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
-                        color = OnSurfaceVariant,
-                        letterSpacing = 0.5.sp
+                        color = OnSurfaceVariant
                     )
                     Text(
                         text = exercise.instruction,
@@ -1445,7 +1426,7 @@ private fun ExerciseDetailDialog(
                     ) {
                         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                             Text(
-                                text = "💡 DICA DE SEGURANÇA PARA INICIANTES:",
+                                text = "💡 PROTEÇÃO ARTICULAR & BIOMECÂNICA:",
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = PrimaryNeon
@@ -1458,28 +1439,6 @@ private fun ExerciseDetailDialog(
                             )
                         }
                     }
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(SurfaceContainerLowest)
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = "Esforço: ${exercise.durationSeconds}s",
-                        fontSize = 12.sp,
-                        color = PrimaryNeon,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "Descanso: ${exercise.restSeconds}s",
-                        fontSize = 12.sp,
-                        color = TertiaryOrange,
-                        fontWeight = FontWeight.Bold
-                    )
                 }
             }
         },
@@ -1515,7 +1474,7 @@ private fun ExerciseDetailDialog(
     )
 }
 
-private fun formatTime(totalSeconds: Int): String {
+private fun formatHiitTime(totalSeconds: Int): String {
     val m = totalSeconds / 60
     val s = totalSeconds % 60
     return String.format("%02d:%02d", m, s)

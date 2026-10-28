@@ -79,10 +79,13 @@ fun DashboardScreen(
 
     val now = System.currentTimeMillis()
     val todayRunWorkout = allWorkouts.firstOrNull { it.type == "RUN" && isSameCalendarDay(it.timestamp, now) }
-    val todayCalisWorkout = allWorkouts.firstOrNull { it.type == "CALISTHENICS" && isSameCalendarDay(it.timestamp, now) }
+    val todayHiitWorkout = allWorkouts.firstOrNull { (it.type == "HIIT" || it.type == "CALISTHENICS") && isSameCalendarDay(it.timestamp, now) }
+    val todayElasticWorkout = allWorkouts.firstOrNull { it.type == "ELASTIC" && isSameCalendarDay(it.timestamp, now) }
+
     val todayRunDone = todayRunWorkout != null
-    val todayCalisDone = todayCalisWorkout != null
-    val completedTodayCount = (if (todayRunDone) 1 else 0) + (if (todayCalisDone) 1 else 0)
+    val todayHiitDone = todayHiitWorkout != null
+    val todayElasticDone = todayElasticWorkout != null
+    val completedTodayCount = (if (todayRunDone) 1 else 0) + (if (todayHiitDone) 1 else 0) + (if (todayElasticDone) 1 else 0)
 
     val realStreakDays = calculateStreakDays(allWorkouts)
     val displayName = settings.userName.ifBlank { "Atleta" }
@@ -104,6 +107,35 @@ fun DashboardScreen(
     val weeklyAdherenceRatio = (workoutsDoneLast7Days.toFloat() / weeklyGoalWorkouts).coerceIn(0f, 1f)
     val weeklyAdherencePct = (weeklyAdherenceRatio * 100).toInt()
 
+    // Weekly Schedule Plan Detection based on Day of Week
+    val dayOfWeek = Calendar.getInstance().apply { timeInMillis = now }.get(Calendar.DAY_OF_WEEK)
+    val (scheduleBadge, scheduleTitle, scheduleSubtitle, schedulePrimaryScreen) = when (dayOfWeek) {
+        Calendar.MONDAY, Calendar.WEDNESDAY, Calendar.FRIDAY -> Quadruple(
+            "SEG / QUA / SEX • CARDIO & HIIT",
+            "Dia de Cardio & HIIT",
+            "Caminhada 3km + Corrida 1,5km no GPS + HIIT em Casa 25 min",
+            AppScreen.HIIT
+        )
+        Calendar.TUESDAY, Calendar.THURSDAY -> Quadruple(
+            "TER / QUI • FORÇA & COLUNA",
+            "Dia de Musculação com Elástico",
+            "6 exercícios de força (22 séries) + 10 min Alongamento Lombar",
+            AppScreen.ELASTIC_STRENGTH
+        )
+        Calendar.SATURDAY -> Quadruple(
+            "SÁBADO • DESCANSO ATIVO",
+            "Descanso Ativo ao Ar Livre",
+            "Caminhada Leve ao Ar Livre 3km no GPS para circulação e recuperação",
+            AppScreen.RUN_TRACKER
+        )
+        else -> Quadruple(
+            "DOMINGO • RECUPERAÇÃO TOTAL",
+            "Descanso Total & Recuperação Muscular",
+            "Hidratação (3,5L água), mobilidade leve e sono reparador",
+            null
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -111,7 +143,8 @@ fun DashboardScreen(
     ) {
         BitFitTopAppBar(
             title = "BITFIT",
-            subtitle = "PAINEL DE PERFORMANCE REAL"
+            subtitle = "PAINEL DE PERFORMANCE REAL",
+            onTuneClick = { onNavigate(AppScreen.GOALS) }
         )
 
         Column(
@@ -120,7 +153,7 @@ fun DashboardScreen(
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // User Greeting, Edit Profile & Real Streak Header
+            // User Greeting, Edit Profile, Metas Quick Button & Real Streak Header
             GlassCard(
                 modifier = Modifier.fillMaxWidth(),
                 cornerRadius = 20.dp
@@ -194,6 +227,22 @@ fun DashboardScreen(
                                         )
                                     }
                                 }
+                                Box(
+                                    modifier = Modifier
+                                        .testTag("btn_goals_quick_dashboard")
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(PrimaryNeon.copy(alpha = 0.16f))
+                                        .border(1.dp, PrimaryNeon.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                                        .clickable { onNavigate(AppScreen.GOALS) }
+                                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                                ) {
+                                    Text(
+                                        text = "Metas",
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = PrimaryNeon
+                                    )
+                                }
                             }
                             Text(
                                 text = todayDateFormatted,
@@ -225,6 +274,100 @@ fun DashboardScreen(
                             tint = TertiaryContainer,
                             modifier = Modifier.size(14.dp)
                         )
+                    }
+                }
+            }
+
+            // Card Cronograma do Dia (Planilha Semanal)
+            GlassCard(
+                modifier = Modifier.fillMaxWidth(),
+                cornerRadius = 18.dp,
+                borderColor = PrimaryNeon.copy(alpha = 0.35f)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        NeonBadge(text = "CRONOGRAMA DO DIA (PLANILHA SEMANAL)", color = PrimaryNeon)
+                        NeonBadge(text = scheduleBadge, color = SecondaryCyan)
+                    }
+
+                    Text(
+                        text = scheduleTitle,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = OnSurface
+                    )
+                    Text(
+                        text = scheduleSubtitle,
+                        fontSize = 12.sp,
+                        color = OnSurfaceVariant,
+                        lineHeight = 16.sp
+                    )
+
+                    if (schedulePrimaryScreen != null) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            if (dayOfWeek == Calendar.MONDAY || dayOfWeek == Calendar.WEDNESDAY || dayOfWeek == Calendar.FRIDAY) {
+                                Button(
+                                    onClick = { onNavigate(AppScreen.RUN_TRACKER) },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = SecondaryCyan,
+                                        contentColor = Color.Black
+                                    ),
+                                    shape = RoundedCornerShape(14.dp),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(38.dp)
+                                ) {
+                                    Text("1º Corrida GPS", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                }
+                                Button(
+                                    onClick = { onNavigate(AppScreen.HIIT) },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = TertiaryOrange,
+                                        contentColor = Color.Black
+                                    ),
+                                    shape = RoundedCornerShape(14.dp),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(38.dp)
+                                ) {
+                                    Text("2º HIIT 25 min", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                }
+                            } else {
+                                Button(
+                                    onClick = { onNavigate(schedulePrimaryScreen) },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = PrimaryNeon,
+                                        contentColor = OnPrimaryContainer
+                                    ),
+                                    shape = RoundedCornerShape(14.dp),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(38.dp)
+                                ) {
+                                    Text(
+                                        text = if (schedulePrimaryScreen == AppScreen.ELASTIC_STRENGTH) {
+                                            "Abrir Musculação com Elástico"
+                                        } else {
+                                            "Abrir Caminhada Leve no GPS"
+                                        },
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -289,7 +432,7 @@ fun DashboardScreen(
                 }
             }
 
-            // 1. Treinos de Hoje (Resumo com status real)
+            // 1. Treinos de Hoje (Resumo com status real dos 3 módulos)
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -303,14 +446,14 @@ fun DashboardScreen(
                         color = OnSurface
                     )
                     Text(
-                        text = "$completedTodayCount / 2 CONCLUÍDOS HOJE",
+                        text = "$completedTodayCount / 3 CONCLUÍDOS HOJE",
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         color = if (completedTodayCount > 0) PrimaryNeon else OnSurfaceVariant
                     )
                 }
 
-                // Card 1: Corrida GPS do Dia
+                // Card 1: Corrida & Caminhada (GPS)
                 GlassCard(
                     modifier = Modifier.fillMaxWidth(),
                     cornerRadius = 14.dp
@@ -359,7 +502,7 @@ fun DashboardScreen(
                                     )
                                 } else {
                                     Text(
-                                        text = "Status: Pendente hoje • Pronto para rastrear",
+                                        text = "Status: Pendente hoje • Seg/Qua/Sex + Sáb",
                                         fontSize = 11.sp,
                                         color = OnSurfaceVariant
                                     )
@@ -407,7 +550,7 @@ fun DashboardScreen(
                     }
                 }
 
-                // Card 2: Rotina de Calistenia
+                // Card 2: HIIT Cardio em Casa (25 min)
                 GlassCard(
                     modifier = Modifier.fillMaxWidth(),
                     cornerRadius = 14.dp
@@ -432,8 +575,8 @@ fun DashboardScreen(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.FitnessCenter,
-                                    contentDescription = "Status Calistenia",
+                                    imageVector = Icons.Default.LocalFireDepartment,
+                                    contentDescription = "Status HIIT",
                                     tint = TertiaryOrange,
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -443,41 +586,119 @@ fun DashboardScreen(
 
                             Column {
                                 Text(
-                                    text = "Rotina de Calistenia (21 Exercícios • 4 Fases)",
+                                    text = "HIIT Cardio em Casa (25 min • 27 Exercícios)",
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = OnSurface
                                 )
                                 Text(
-                                    text = if (todayCalisWorkout != null) {
-                                        val firstLine = todayCalisWorkout.routineDetailsJson.lineSequence().firstOrNull().orEmpty()
+                                    text = if (todayHiitWorkout != null) {
+                                        val firstLine = todayHiitWorkout.routineDetailsJson.lineSequence().firstOrNull().orEmpty()
                                         if (firstLine.isNotBlank()) {
-                                            "Hoje (${todayCalisWorkout.durationFormatted}): $firstLine"
+                                            "Hoje (${todayHiitWorkout.durationFormatted}): $firstLine"
                                         } else {
-                                            "Concluído hoje (${todayCalisWorkout.durationFormatted} • ${todayCalisWorkout.exercisesCount} ex.)"
+                                            "Concluído hoje (${todayHiitWorkout.durationFormatted} • ${todayHiitWorkout.exercisesCount} ex.)"
                                         }
                                     } else {
-                                        "Status: Pendente hoje • 4 Fases Biomecânicas"
+                                        "Status: Pendente hoje • 7 Aquecimento + 20 HIIT (45s/15s)"
                                     },
                                     fontSize = 11.sp,
-                                    color = if (todayCalisDone) PrimaryNeon else TertiaryOrange
+                                    color = if (todayHiitDone) PrimaryNeon else TertiaryOrange
                                 )
                             }
                         }
 
                         Button(
-                            onClick = { onNavigate(AppScreen.CALISTHENICS) },
+                            onClick = { onNavigate(AppScreen.HIIT) },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = TertiaryOrange,
                                 contentColor = Color.Black
                             ),
                             shape = RoundedCornerShape(20.dp),
                             modifier = Modifier
-                                .testTag("btn_start_calisthenics_dashboard")
+                                .testTag("btn_start_hiit_dashboard")
                                 .height(34.dp)
                         ) {
                             Text(
-                                text = if (todayCalisDone) "Refazer" else "Iniciar",
+                                text = if (todayHiitDone) "Refazer" else "Iniciar",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+
+                // Card 3: Musculação com Elástico (Séries & Reps)
+                GlassCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    cornerRadius = 14.dp
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(38.dp)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(SecondaryCyan.copy(alpha = 0.15f))
+                                    .border(1.dp, SecondaryCyan.copy(alpha = 0.3f), RoundedCornerShape(10.dp)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.FitnessCenter,
+                                    contentDescription = "Status Elástico",
+                                    tint = SecondaryCyan,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.width(12.dp))
+
+                            Column {
+                                Text(
+                                    text = "Musculação com Elástico (Séries & Reps)",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = OnSurface
+                                )
+                                Text(
+                                    text = if (todayElasticWorkout != null) {
+                                        val firstLine = todayElasticWorkout.routineDetailsJson.lineSequence().firstOrNull().orEmpty()
+                                        if (firstLine.isNotBlank()) {
+                                            "Hoje: $firstLine"
+                                        } else {
+                                            "Concluído hoje (${todayElasticWorkout.exercisesCount} ex. • ${todayElasticWorkout.calories} kcal)"
+                                        }
+                                    } else {
+                                        "Status: Pendente hoje • 6 Força (22 séries) + 10m Lombar"
+                                    },
+                                    fontSize = 11.sp,
+                                    color = if (todayElasticDone) PrimaryNeon else SecondaryCyan
+                                )
+                            }
+                        }
+
+                        Button(
+                            onClick = { onNavigate(AppScreen.ELASTIC_STRENGTH) },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = SecondaryCyan,
+                                contentColor = Color.Black
+                            ),
+                            shape = RoundedCornerShape(20.dp),
+                            modifier = Modifier
+                                .testTag("btn_start_elastic_dashboard")
+                                .height(34.dp)
+                        ) {
+                            Text(
+                                text = if (todayElasticDone) "Refazer" else "Iniciar",
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -486,7 +707,7 @@ fun DashboardScreen(
                 }
             }
 
-            // 2. Ações Rápidas (Pronto para treinar)
+            // 2. Ações Rápidas (Pronto para treinar os 3 módulos)
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -500,7 +721,7 @@ fun DashboardScreen(
                         color = OnSurface
                     )
                     Text(
-                        text = "PRONTO PARA TREINAR",
+                        text = "3 MÓDULOS DE TREINO",
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                         color = OnSurfaceVariant,
@@ -531,13 +752,13 @@ fun DashboardScreen(
                             Spacer(modifier = Modifier.height(6.dp))
 
                             Text(
-                                text = "Iniciar Corrida / Caminhada",
+                                text = "Corrida & Caminhada (GPS)",
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = OnSurface
                             )
                             Text(
-                                text = "Localização exata WGS84, velocidade, splits e rota",
+                                text = "Alternância 🏃 Correndo / 🚶 Caminhando, rota e splits",
                                 fontSize = 11.sp,
                                 color = OnSurfaceVariant
                             )
@@ -581,11 +802,11 @@ fun DashboardScreen(
                     }
                 }
 
-                // Action 2: Treino de Calistenia (20 Exercícios)
+                // Action 2: HIIT Cardio em Casa (25 min)
                 GlassCard(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { onNavigate(AppScreen.CALISTHENICS) },
+                        .clickable { onNavigate(AppScreen.HIIT) },
                     cornerRadius = 16.dp
                 ) {
                     Row(
@@ -597,20 +818,20 @@ fun DashboardScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                NeonBadge(text = "Alta Intensidade", color = TertiaryOrange)
-                                NeonBadge(text = "Treino Funcional", color = PrimaryNeon)
+                                NeonBadge(text = "25 Min • 45s/15s", color = TertiaryOrange)
+                                NeonBadge(text = "Prévia no Descanso", color = PrimaryNeon)
                             }
 
                             Spacer(modifier = Modifier.height(6.dp))
 
                             Text(
-                                text = "Treino de Calistenia (20 Exercícios)",
+                                text = "HIIT Cardio em Casa (25 min)",
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = OnSurface
                             )
                             Text(
-                                text = "20 exercícios guiados com fotos • Emagrecimento e Postura",
+                                text = "7 Aquecimento (20s) + 20 HIIT (45s ação / 15s mostrando próximo)",
                                 fontSize = 11.sp,
                                 color = OnSurfaceVariant
                             )
@@ -622,13 +843,13 @@ fun DashboardScreen(
                                 horizontalArrangement = Arrangement.spacedBy(4.dp)
                             ) {
                                 Text(
-                                    text = "~210 kcal estimadas",
+                                    text = "~305 kcal estimadas",
                                     fontSize = 11.sp,
                                     color = TertiaryOrange
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "Iniciar sessão →",
+                                    text = "Iniciar HIIT →",
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     color = TertiaryOrange
@@ -641,12 +862,85 @@ fun DashboardScreen(
                                 .size(50.dp)
                                 .clip(RoundedCornerShape(14.dp))
                                 .background(TertiaryOrange)
-                                .clickable { onNavigate(AppScreen.CALISTHENICS) },
+                                .clickable { onNavigate(AppScreen.HIIT) },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.LocalFireDepartment,
+                                contentDescription = "HIIT",
+                                tint = Color.Black,
+                                modifier = Modifier.size(26.dp)
+                            )
+                        }
+                    }
+                }
+
+                // Action 3: Musculação com Elástico (Séries & Reps)
+                GlassCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onNavigate(AppScreen.ELASTIC_STRENGTH) },
+                    cornerRadius = 16.dp
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                NeonBadge(text = "22 Séries • 60s Descanso", color = SecondaryCyan)
+                                NeonBadge(text = "+ 10m Lombar", color = PrimaryNeon)
+                            }
+
+                            Spacer(modifier = Modifier.height(6.dp))
+
+                            Text(
+                                text = "Musculação com Elástico (Séries & Reps)",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = OnSurface
+                            )
+                            Text(
+                                text = "Remada, Agachamento, Supino, Bíceps, Tríceps, Face Pull + Lombar",
+                                fontSize = 11.sp,
+                                color = OnSurfaceVariant
+                            )
+
+                            Spacer(modifier = Modifier.height(6.dp))
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text(
+                                    text = "Terças e Quintas",
+                                    fontSize = 11.sp,
+                                    color = SecondaryCyan
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "Registrar séries →",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = SecondaryCyan
+                                )
+                            }
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .size(50.dp)
+                                .clip(RoundedCornerShape(14.dp))
+                                .background(SecondaryCyan)
+                                .clickable { onNavigate(AppScreen.ELASTIC_STRENGTH) },
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.FitnessCenter,
-                                contentDescription = "Calistenia",
+                                contentDescription = "Musculação com Elástico",
                                 tint = Color.Black,
                                 modifier = Modifier.size(26.dp)
                             )
@@ -916,3 +1210,11 @@ private fun buildLast7DaysStatus(
         Triple(letter, dayNum, hasWorkout)
     }
 }
+
+private data class Quadruple<A, B, C, D>(
+    val first: A,
+    val second: B,
+    val third: C,
+    val fourth: D
+)
+

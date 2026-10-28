@@ -17,36 +17,50 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.R
-import com.example.data.model.CalisthenicsExercises
+import com.example.data.model.ElasticStrengthExercises
+import com.example.data.model.HiitExercises
 import com.example.ui.theme.PrimaryNeon
 import com.example.ui.theme.TertiaryOrange
 
-fun getExerciseDrawableRes(exerciseId: Int): Int {
-    val found = CalisthenicsExercises.routine20.firstOrNull { it.id == exerciseId }?.drawableResId
+fun getStrengthExerciseDrawableRes(exerciseId: Int): Int {
+    val found = ElasticStrengthExercises.routine7.firstOrNull { it.id == exerciseId }?.drawableResId
     if (found != null && found != 0) return found
     return when (exerciseId) {
-        1 -> R.drawable.ex_11
-        2 -> R.drawable.ex_12
-        3 -> R.drawable.ex_14
-        4 -> R.drawable.ex_13
-        5 -> R.drawable.ex_17
-        6 -> R.drawable.ex_1
-        7 -> R.drawable.ex_2
-        8 -> R.drawable.ex_21_superman
-        9 -> R.drawable.ex_3
-        10 -> R.drawable.ex_7
-        11 -> R.drawable.ex_15
-        12 -> R.drawable.ex_19
-        13 -> R.drawable.ex_8
-        14 -> R.drawable.ex_9
-        15 -> R.drawable.ex_20
+        1 -> R.drawable.elastic_supino
+        2 -> R.drawable.elastic_remada
+        3 -> R.drawable.elastic_ombros
+        4 -> R.drawable.elastic_agachamento
+        5 -> R.drawable.elastic_biceps
+        6 -> R.drawable.elastic_triceps
+        7 -> R.drawable.elastic_alongamento
+        else -> R.drawable.elastic_supino
+    }
+}
+
+fun getExerciseDrawableRes(exerciseId: Int): Int {
+    val found = HiitExercises.routine27.firstOrNull { it.id == exerciseId }?.drawableResId
+    if (found != null && found != 0) return found
+    return when ((exerciseId - 1) % 20 + 1) {
+        1 -> R.drawable.ex_1
+        2 -> R.drawable.ex_2
+        3 -> R.drawable.ex_3
+        4 -> R.drawable.ex_4
+        5 -> R.drawable.ex_5
+        6 -> R.drawable.ex_6
+        7 -> R.drawable.ex_7
+        8 -> R.drawable.ex_8
+        9 -> R.drawable.ex_9
+        10 -> R.drawable.hiit_escalador
+        11 -> R.drawable.ex_11
+        12 -> R.drawable.hiit_sumo
+        13 -> R.drawable.ex_13
+        14 -> R.drawable.hiit_sprint
+        15 -> R.drawable.ex_15
         16 -> R.drawable.ex_16
-        17 -> R.drawable.ex_18
-        18 -> R.drawable.ex_4
-        19 -> R.drawable.ex_5
-        20 -> R.drawable.ex_6
-        21 -> R.drawable.ex_10
-        else -> R.drawable.ex_1
+        17 -> R.drawable.ex_17
+        18 -> R.drawable.ex_18
+        19 -> R.drawable.ex_19
+        else -> R.drawable.ex_20
     }
 }
 
@@ -59,7 +73,7 @@ fun ExerciseIllustration(
     drawableResId: Int = 0
 ) {
     val resId = if (drawableResId != 0) drawableResId else getExerciseDrawableRes(exerciseId)
-    val borderColor = if (isRest) TertiaryOrange.copy(alpha = 0.75f) else PrimaryNeon.copy(alpha = 0.65f)
+    val borderColor = if (isRest) TertiaryOrange.copy(alpha = 0.85f) else PrimaryNeon.copy(alpha = 0.65f)
 
     Box(
         modifier = modifier
@@ -77,3 +91,4 @@ fun ExerciseIllustration(
         )
     }
 }
+
