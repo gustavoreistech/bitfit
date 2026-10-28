@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Stylized BitFit Emblem: Lightning Runner & Dumbbell Pulse (66dp safe zone) -->
+    <!-- Cyan glow accent -->
+    <path
+        android:pathData="M38,30 L66,30 L52,48 L70,48 L36,78 L46,54 L32,54 Z"
+        android:strokeWidth="1.5"
+        android:strokeColor="#334CD7F6">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="32"
+                android:startY="30"
+                android:endX="70"
+                android:endY="78"
+                android:type="linear">
+                <item android:color="#4BE277" android:offset="0.0" />
+                <item android:color="#4CD7F6" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Runner head / energetic focal point -->
+    <path
+        android:pathData="M64,32m-5,0a5,5 0 1,1 10,0a5,5 0 1,1 -10,0"
+        android:fillColor="#4BE277" />
+    <!-- Dynamic horizontal sprint stripes -->
+    <path
+        android:pathData="M27,62 L33,62 M24,67 L31,67 M28,72 L35,72"
+        android:strokeWidth="2.5"
+        android:strokeColor="#4CD7F6"
+        android:strokeLineCap="round" />
+    <!-- Pulse dot -->
+    <path
+        android:pathData="M75,52m-3,0a3,3 0 1,1 6,0a3,3 0 1,1 -6,0"
+        android:fillColor="#FFB792" />
+</vector>

@@ -1,0 +1,6 @@
+{
+  "name": "BitFit",
+  "description": "Aplicativo pessoal de treinos e evolução corporal com rastreamento GPS, rotina guiada de calistenia de 13 min, metas dinâmicas e controle de peso/IMC 100% offline.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

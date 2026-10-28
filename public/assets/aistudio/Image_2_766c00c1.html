@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>APEX PULSE - Metas Pessoais</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container": "#171f33",
+            "outline-variant": "#3d4a3d",
+            "background": "#0b1326",
+            "on-secondary-container": "#00424e",
+            "surface-dim": "#0b1326",
+            "on-tertiary-container": "#6d2d00",
+            "on-tertiary-fixed": "#341100",
+            "primary-fixed": "#6bff8f",
+            "surface-container-lowest": "#060e20",
+            "on-primary-container": "#004b1e",
+            "error-container": "#93000a",
+            "on-primary-fixed-variant": "#005321",
+            "tertiary-fixed": "#ffdbca",
+            "primary-container": "#22c55e",
+            "tertiary-fixed-dim": "#ffb690",
+            "on-background": "#dae2fd",
+            "surface-tint": "#4ae176",
+            "on-secondary-fixed": "#001f26",
+            "surface-bright": "#31394d",
+            "inverse-on-surface": "#283044",
+            "surface-container-highest": "#2d3449",
+            "on-tertiary": "#552100",
+            "surface": "#0b1326",
+            "on-secondary": "#003640",
+            "secondary-container": "#03b5d3",
+            "on-primary": "#003915",
+            "primary": "#4be277",
+            "surface-variant": "#2d3449",
+            "surface-container-low": "#131b2e",
+            "secondary": "#4cd7f6",
+            "tertiary": "#ffb792",
+            "surface-container-high": "#222a3d",
+            "outline": "#869585",
+            "inverse-primary": "#006e2f",
+            "on-secondary-fixed-variant": "#004e5c",
+            "error": "#ffb4ab",
+            "on-error-container": "#ffdad6",
+            "secondary-fixed": "#acedff",
+            "on-surface-variant": "#bccbb9",
+            "tertiary-container": "#ff8e4d",
+            "on-surface": "#dae2fd",
+            "inverse-surface": "#dae2fd",
+            "on-primary-fixed": "#002109",
+            "on-tertiary-fixed-variant": "#783200",
+            "on-error": "#690005",
+            "primary-fixed-dim": "#4ae176",
+            "secondary-fixed-dim": "#4cd7f6"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-xs": "0.25rem",
+            "gutter-mobile": "0.75rem",
+            "space-sm": "0.5rem",
+            "margin-mobile": "1rem",
+            "gutter": "1rem",
+            "space-lg": "1.5rem",
+            "space-xl": "2.25rem",
+            "space-md": "1rem",
+            "margin": "1.25rem"
+          },
+          "fontFamily": {
+            "headline-lg": ["Space Grotesk"],
+            "body-lg": ["Lexend"],
+            "label-md": ["Lexend"],
+            "label-sm": ["Lexend"],
+            "body-md": ["Lexend"],
+            "display-lg": ["Space Grotesk"],
+            "headline-md": ["Space Grotesk"],
+            "headline-sm": ["Space Grotesk"],
+            "metric-huge": ["Space Grotesk"],
+            "label-lg": ["Lexend"],
+            "body-sm": ["Lexend"],
+            "metric-huge-mobile": ["Space Grotesk"],
+            "display-lg-mobile": ["Space Grotesk"],
+            "headline-lg-mobile": ["Space Grotesk"]
+          },
+          "fontSize": {
+            "headline-lg": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+            "label-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.06em", "fontWeight": "700" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "display-lg": ["48px", { "lineHeight": "52px", "letterSpacing": "-0.03em", "fontWeight": "700" }],
+            "headline-md": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+            "metric-huge": ["56px", { "lineHeight": "56px", "letterSpacing": "-0.04em", "fontWeight": "700" }],
+            "label-lg": ["14px", { "lineHeight": "18px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+            "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+            "metric-huge-mobile": ["42px", { "lineHeight": "44px", "letterSpacing": "-0.03em", "fontWeight": "700" }],
+            "display-lg-mobile": ["36px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "headline-lg-mobile": ["26px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .material-symbols-outlined.fill-icon {
+      font-variation-settings: 'FILL' 1;
+    }
+    
+    /* Hardware top-lit edge styling */
+    .telemetry-card {
+      background: rgba(23, 31, 51, 0.72);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+      border-left: 1px solid rgba(255, 255, 255, 0.04);
+      border-right: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    
+    .glow-primary {
+      box-shadow: 0 0 24px rgba(34, 197, 94, 0.16);
+    }
+    .glow-cyan {
+      box-shadow: 0 0 24px rgba(6, 182, 212, 0.16);
+    }
+    .glow-tertiary {
+      box-shadow: 0 0 24px rgba(255, 142, 77, 0.2);
+    }
+
+    /* Custom range styling */
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      background: transparent;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 24px;
+      width: 24px;
+      border-radius: 9999px;
+      background: #4be277;
+      cursor: pointer;
+      margin-top: -8px;
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.8), 0 0 0 4px rgba(11, 19, 38, 0.9);
+      border: 2px solid #ffffff;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 8px;
+      cursor: pointer;
+      background: #1e293b;
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface antialiased min-h-screen pb-28 select-none font-body-md text-body-md overflow-x-hidden">
+<!-- TOP APP BAR (Shared Components JSON Anchor) -->
+<header class="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-4 h-16 bg-surface/80 dark:bg-surface/80 backdrop-blur-md shadow-sm">
+<div class="flex items-center gap-3">
+<button aria-label="Abrir menu" class="w-10 h-10 flex items-center justify-center rounded-xl bg-surface-variant/40 text-on-surface active:scale-95 transition-transform duration-150" type="button">
+<span class="material-symbols-outlined text-primary">menu</span>
+</button>
+<div>
+<span class="font-headline-sm text-headline-sm tracking-wider font-bold text-on-surface block leading-tight">APEX PULSE</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest text-primary font-bold">METAS &amp; DIRETRIZES</span>
+</div>
+</div>
+<!-- Sync Engine Badge -->
+<div class="flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-surface-container-high/90 border border-outline-variant/40 text-on-surface-variant shadow-inner" title="Sincronização persistente ativa">
+<span class="material-symbols-outlined text-[16px] text-secondary">database</span>
+<span class="font-label-sm text-label-sm text-secondary tracking-normal">SQLite / Hive</span>
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+</div>
+</header>
+<!-- MAIN SCROLL CONTAINER -->
+<main class="w-full max-w-md mx-auto pt-20 px-4 space-y-4">
+<!-- INTRO HEADER -->
+<section class="space-y-3 pt-1">
+<div class="flex items-start justify-between">
+<div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface font-bold tracking-tight">Minhas Metas</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 leading-relaxed">
+            Ajuste seus objetivos diários e semanais. O Dashboard recalculará suas métricas e barras de progresso automaticamente.
+          </p>
+</div>
+</div>
+<!-- Live recalculation banner -->
+<div class="telemetry-card rounded-xl p-3.5 flex items-center gap-3 border-l-4 border-l-primary glow-primary">
+<div class="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-[20px]">sync_alt</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-label-md text-label-md text-primary font-bold">Impacto Dinâmico Ativo</span>
+<span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-primary/20 text-primary uppercase">Em Tempo Real</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-[11px] truncate">
+            Altera barras do Dashboard, GPS Tracker e calibragem de gasto calórico.
+          </p>
+</div>
+</div>
+</section>
+<!-- SECTION 1: RUNNING DISTANCE GOAL -->
+<section class="telemetry-card rounded-2xl p-4 space-y-4 glow-cyan">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Distância da Corrida por Sessão</h2>
+</div>
+<span class="px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-secondary/15 text-secondary border border-secondary/20 uppercase">
+          GPS Diário
+        </span>
+</div>
+<!-- Metric Visualizer Display -->
+<div class="bg-surface-container-lowest/80 rounded-xl p-4 border border-outline-variant/30 flex flex-col items-center justify-center relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-b from-secondary/5 to-transparent pointer-events-none"></div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant mb-1">Distância Alvo</span>
+<div class="flex items-baseline gap-2">
+<span class="font-metric-huge-mobile text-metric-huge-mobile font-bold text-on-surface tracking-tighter" id="run-val-display">1.600</span>
+<span class="font-headline-sm text-headline-sm text-secondary font-bold">m</span>
+</div>
+<div class="flex items-center gap-1.5 mt-1 text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-secondary">trending_up</span>
+<span id="run-km-display">Equivale a 1,60 km por treino</span>
+</div>
+<!-- Increment / Decrement Stepper Controls -->
+<div class="flex items-center justify-center gap-4 mt-4 w-full">
+<button aria-label="Diminuir 100m" class="w-12 h-12 rounded-xl bg-surface-container-high border border-outline-variant/50 text-on-surface flex items-center justify-center active:scale-95 hover:bg-surface-bright/40 transition-all" id="btn-run-dec" type="button">
+<span class="material-symbols-outlined text-[24px]">remove</span>
+</button>
+<div class="flex-1 max-w-[190px]">
+<input aria-label="Ajustar distância em metros" class="w-full" id="run-slider" max="10000" min="500" step="100" type="range" value="1600"/>
+</div>
+<button aria-label="Aumentar 100m" class="w-12 h-12 rounded-xl bg-surface-container-high border border-outline-variant/50 text-on-surface flex items-center justify-center active:scale-95 hover:bg-surface-bright/40 transition-all" id="btn-run-inc" type="button">
+<span class="material-symbols-outlined text-[24px]">add</span>
+</button>
+</div>
+</div>
+<!-- Quick presets -->
+<div class="space-y-2">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant block">Presets Rápidos</span>
+<div class="grid grid-cols-2 gap-2">
+<button class="preset-btn px-3 py-2 rounded-lg bg-surface-container-high/60 border border-outline-variant/30 text-left hover:border-secondary/50 active:scale-95 transition-all" data-preset="1000" type="button">
+<span class="font-label-sm text-label-sm text-on-surface font-bold block">1.000 m</span>
+<span class="font-body-sm text-body-sm text-[11px] text-on-surface-variant">Iniciante</span>
+</button>
+<button class="preset-btn active-preset px-3 py-2 rounded-lg bg-secondary/15 border border-secondary text-left active:scale-95 transition-all" data-preset="1600" type="button">
+<span class="font-label-sm text-label-sm text-secondary font-bold block">1.600 m</span>
+<span class="font-body-sm text-body-sm text-[11px] text-secondary">Milha Padrão</span>
+</button>
+<button class="preset-btn px-3 py-2 rounded-lg bg-surface-container-high/60 border border-outline-variant/30 text-left hover:border-secondary/50 active:scale-95 transition-all" data-preset="3000" type="button">
+<span class="font-label-sm text-label-sm text-on-surface font-bold block">3.000 m</span>
+<span class="font-body-sm text-body-sm text-[11px] text-on-surface-variant">Avançado</span>
+</button>
+<button class="preset-btn px-3 py-2 rounded-lg bg-surface-container-high/60 border border-outline-variant/30 text-left hover:border-secondary/50 active:scale-95 transition-all" data-preset="5000" type="button">
+<span class="font-label-sm text-label-sm text-on-surface font-bold block">5.000 m</span>
+<span class="font-body-sm text-body-sm text-[11px] text-on-surface-variant">Desafio 5k</span>
+</button>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-[11px] text-on-surface-variant flex items-center gap-1.5 pt-1">
+<span class="material-symbols-outlined text-[15px] text-secondary">info</span>
+        Define o percentual da barra de progresso no GPS Tracker e no card da Tela Inicial.
+      </p>
+</section>
+<!-- SECTION 2: RUNNING FREQUENCY -->
+<section class="telemetry-card rounded-2xl p-4 space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Meta Semanal de Corridas</h2>
+</div>
+<span class="px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-secondary/15 text-secondary border border-secondary/20">
+          Frequência
+        </span>
+</div>
+<!-- Stepper and Target -->
+<div class="bg-surface-container-lowest/80 rounded-xl p-4 border border-outline-variant/30 flex items-center justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Meta Semanal</span>
+<div class="flex items-baseline gap-1 mt-0.5">
+<span class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface" id="run-freq-display">3</span>
+<span class="font-body-md text-body-md text-on-surface-variant">sessões / semana</span>
+</div>
+<span class="font-body-sm text-body-sm text-secondary font-medium block mt-0.5" id="run-total-km">Equivalente a ~4,8 km / semana</span>
+</div>
+<!-- Stepper buttons -->
+<div class="flex items-center gap-2 bg-surface-container-high rounded-xl p-1 border border-outline-variant/40">
+<button aria-label="Diminuir frequência semanal" class="w-10 h-10 rounded-lg flex items-center justify-center text-on-surface hover:bg-surface-bright/40 active:scale-90 transition-transform" id="btn-freq-dec" type="button">
+<span class="material-symbols-outlined text-[20px]">remove</span>
+</button>
+<span class="w-6 text-center font-headline-sm text-headline-sm text-primary font-bold" id="freq-stepper-num">3</span>
+<button aria-label="Aumentar frequência semanal" class="w-10 h-10 rounded-lg flex items-center justify-center text-on-surface hover:bg-surface-bright/40 active:scale-90 transition-transform" id="btn-freq-inc" type="button">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</div>
+<!-- Quick visual dots -->
+<div class="space-y-1.5">
+<div class="flex justify-between items-center text-label-sm font-label-sm text-on-surface-variant">
+<span>Cadência Regular Recomendada</span>
+<span class="text-secondary font-bold" id="cadence-label">Intercalado (D+1)</span>
+</div>
+<div class="grid grid-cols-7 gap-1.5" id="freq-dots-container">
+<!-- Rendered via JS -->
+</div>
+</div>
+</section>
+<!-- SECTION 3: CALISTHENICS ROUTINE -->
+<section class="telemetry-card rounded-2xl p-4 space-y-4 glow-primary">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Dias de Calistenia por Semana</h2>
+</div>
+<span class="px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-primary/15 text-primary border border-primary/20 uppercase">
+          Força Corporal
+        </span>
+</div>
+<div class="bg-surface-container-lowest/80 rounded-xl p-4 border border-outline-variant/30 flex items-center justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Frequência Planejada</span>
+<div class="flex items-baseline gap-1 mt-0.5">
+<span class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary" id="calis-days-count">4</span>
+<span class="font-body-md text-body-md text-on-surface-variant">dias / semana</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant block mt-0.5 font-medium" id="calis-time-est">52 minutos de calistenia guiada</span>
+</div>
+<!-- Calisthenics Intensity Stepper -->
+<div class="flex items-center gap-2 bg-surface-container-high rounded-xl p-1 border border-outline-variant/40">
+<button aria-label="Diminuir dias de calistenia" class="w-10 h-10 rounded-lg flex items-center justify-center text-on-surface hover:bg-surface-bright/40 active:scale-90 transition-transform" id="btn-calis-dec" type="button">
+<span class="material-symbols-outlined text-[20px]">remove</span>
+</button>
+<span class="w-6 text-center font-headline-sm text-headline-sm text-primary font-bold" id="calis-stepper-num">4</span>
+<button aria-label="Aumentar dias de calistenia" class="w-10 h-10 rounded-lg flex items-center justify-center text-on-surface hover:bg-surface-bright/40 active:scale-90 transition-transform" id="btn-calis-inc" type="button">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</div>
+<!-- Target Days Matrix (Seg a Dom) -->
+<div class="space-y-2">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Dias Alvo Selecionados</span>
+<span class="font-label-sm text-label-sm text-primary">Toque para alternar</span>
+</div>
+<div class="grid grid-cols-7 gap-1.5" id="days-selector-group">
+<button class="day-btn h-12 rounded-xl flex flex-col items-center justify-center font-label-sm text-label-sm font-bold bg-primary text-on-primary shadow-sm active:scale-95 transition-all" data-day="seg" type="button">
+<span>SEG</span>
+<span class="w-1.5 h-1.5 rounded-full bg-background mt-0.5"></span>
+</button>
+<button class="day-btn h-12 rounded-xl flex flex-col items-center justify-center font-label-sm text-label-sm font-bold bg-primary text-on-primary shadow-sm active:scale-95 transition-all" data-day="ter" type="button">
+<span>TER</span>
+<span class="w-1.5 h-1.5 rounded-full bg-background mt-0.5"></span>
+</button>
+<button class="day-btn h-12 rounded-xl flex flex-col items-center justify-center font-label-sm text-label-sm font-bold bg-surface-container-high text-on-surface-variant border border-outline-variant/30 active:scale-95 transition-all" data-day="qua" type="button">
+<span>QUA</span>
+<span class="w-1.5 h-1.5 rounded-full bg-transparent mt-0.5"></span>
+</button>
+<button class="day-btn h-12 rounded-xl flex flex-col items-center justify-center font-label-sm text-label-sm font-bold bg-primary text-on-primary shadow-sm active:scale-95 transition-all" data-day="qui" type="button">
+<span>QUI</span>
+<span class="w-1.5 h-1.5 rounded-full bg-background mt-0.5"></span>
+</button>
+<button class="day-btn h-12 rounded-xl flex flex-col items-center justify-center font-label-sm text-label-sm font-bold bg-primary text-on-primary shadow-sm active:scale-95 transition-all" data-day="sex" type="button">
+<span>SEX</span>
+<span class="w-1.5 h-1.5 rounded-full bg-background mt-0.5"></span>
+</button>
+<button class="day-btn h-12 rounded-xl flex flex-col items-center justify-center font-label-sm text-label-sm font-bold bg-surface-container-high text-on-surface-variant border border-outline-variant/30 active:scale-95 transition-all" data-day="sab" type="button">
+<span>SAB</span>
+<span class="w-1.5 h-1.5 rounded-full bg-transparent mt-0.5"></span>
+</button>
+<button class="day-btn h-12 rounded-xl flex flex-col items-center justify-center font-label-sm text-label-sm font-bold bg-surface-container-high text-on-surface-variant border border-outline-variant/30 active:scale-95 transition-all" data-day="dom" type="button">
+<span>DOM</span>
+<span class="w-1.5 h-1.5 rounded-full bg-transparent mt-0.5"></span>
+</button>
+</div>
+</div>
+</section>
+<!-- SECTION 4: CONSOLIDATED SUMMARY & CONSISTENCY ALERT -->
+<section class="telemetry-card rounded-2xl p-4 space-y-3.5 glow-tertiary">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary-container text-[20px]">stacked_bar_chart</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Resumo Consolidado</h2>
+</div>
+<span class="px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-tertiary-container/15 text-tertiary font-bold uppercase">
+          Projeção Semanal
+        </span>
+</div>
+<div class="bg-surface-container-lowest/90 rounded-xl p-3.5 border border-outline-variant/30 space-y-3">
+<div class="flex items-start justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant block">Carga de Treinos</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold" id="summary-combined-text">
+              Meta Semanal: 7 treinos totais
+            </span>
+<span class="font-body-sm text-body-sm text-on-surface-variant block mt-0.5" id="summary-breakdown">
+              (3 Corridas + 4 Calistenia)
+            </span>
+</div>
+<div class="text-right">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-primary block">Aderência Est.</span>
+<span class="font-headline-md text-headline-md font-bold text-primary">85%</span>
+</div>
+</div>
+<!-- Consistency progress bar -->
+<div class="space-y-1">
+<div class="w-full bg-surface-container-highest h-2 rounded-full overflow-hidden flex">
+<div class="bg-secondary h-full transition-all duration-300" id="prog-run-bar" style="width: 43%;"></div>
+<div class="bg-primary h-full transition-all duration-300" id="prog-calis-bar" style="width: 57%;"></div>
+</div>
+<div class="flex justify-between items-center text-[10px] text-on-surface-variant font-label-sm">
+<span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-secondary inline-block"></span> Corrida (<span id="pct-run-val">43%</span>)</span>
+<span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-primary inline-block"></span> Calistenia (<span id="pct-calis-val">57%</span>)</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2 p-2.5 rounded-xl bg-surface-container/60 border border-outline-variant/20 text-on-surface-variant font-body-sm text-body-sm text-[12px]">
+<span class="material-symbols-outlined text-primary text-[18px]">verified</span>
+<span>Equilíbrio biomecânico ideal: descanso ativo garantido entre sessões de impacto.</span>
+</div>
+</section>
+<!-- SECTION 5: PERSISTENCE ACTIONS -->
+<section class="space-y-3 pt-2">
+<!-- Primary Save Trigger Button -->
+<button class="w-full h-14 rounded-full bg-primary-container text-on-primary-container font-headline-sm text-headline-sm font-bold flex items-center justify-center gap-3 active:scale-[0.97] shadow-[0_0_24px_rgba(34,197,94,0.35)] hover:bg-primary-fixed transition-all duration-150" id="btn-save-goals" type="button">
+<span class="material-symbols-outlined text-[24px] fill-icon">save</span>
+<span>Salvar Metas no Dispositivo</span>
+</button>
+<!-- Secondary Reset Button -->
+<button class="w-full h-12 rounded-full bg-surface-container-high/80 text-on-surface-variant border border-outline-variant/50 font-label-lg text-label-lg font-semibold flex items-center justify-center gap-2 active:scale-[0.97] hover:text-on-surface hover:bg-surface-bright/30 transition-all duration-150" id="btn-reset-goals" type="button">
+<span class="material-symbols-outlined text-[18px]">restart_alt</span>
+<span>Restaurar Valores Padrão</span>
+</button>
+<!-- Feedback Toast Container (Hidden by default) -->
+<div class="hidden transform transition-all duration-300 p-3 rounded-xl bg-surface-container-highest border border-primary/50 text-on-surface flex items-center gap-3" id="save-toast">
+<div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">check_circle</span>
+</div>
+<div class="flex-1">
+<p class="font-label-md text-label-md text-primary font-bold">Salvo no SQLite local</p>
+<p class="font-body-sm text-body-sm text-[11px] text-on-surface-variant">Metas e parâmetros sincronizados com a engine do APEX PULSE.</p>
+</div>
+</div>
+</section>
+</main>
+<!-- BOTTOM NAVIGATION BAR (Shared Components JSON Anchor with 5 Items & Metas Active) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 px-2 pb-safe bg-surface-container/90 dark:bg-surface-container/90 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
+<!-- 1: Início -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant py-1 px-3 active:scale-95 transition-all duration-150 hover:text-primary hover:bg-surface-bright/20 rounded-full" href="#">
+<span class="material-symbols-outlined text-[22px]">dashboard</span>
+<span class="font-label-sm text-label-sm uppercase mt-0.5">Início</span>
+</a>
+<!-- 2: Corrida -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant py-1 px-3 active:scale-95 transition-all duration-150 hover:text-primary hover:bg-surface-bright/20 rounded-full" href="#">
+<span class="material-symbols-outlined text-[22px]">directions_run</span>
+<span class="font-label-sm text-label-sm uppercase mt-0.5">Corrida</span>
+</a>
+<!-- 3: Calistenia -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant py-1 px-3 active:scale-95 transition-all duration-150 hover:text-primary hover:bg-surface-bright/20 rounded-full" href="#">
+<span class="material-symbols-outlined text-[22px]">fitness_center</span>
+<span class="font-label-sm text-label-sm uppercase mt-0.5">Calistenia</span>
+</a>
+<!-- 4: Metas (ACTIVE DESTINATION) -->
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary py-1 px-3 rounded-full bg-primary/10 active:scale-95 transition-all duration-150 shadow-[0_0_12px_rgba(75,226,119,0.25)]" href="#">
+<span class="material-symbols-outlined text-[22px] fill-icon">tune</span>
+<span class="font-label-sm text-label-sm uppercase font-bold mt-0.5">Metas</span>
+</a>
+<!-- 5: Histórico -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant py-1 px-3 active:scale-95 transition-all duration-150 hover:text-primary hover:bg-surface-bright/20 rounded-full" href="#">
+<span class="material-symbols-outlined text-[22px]">history</span>
+<span class="font-label-sm text-label-sm uppercase mt-0.5">Histórico</span>
+</a>
+</nav>
+<!-- Interactive Logic Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // State
+      let runMeters = 1600;
+      let runFrequency = 3;
+      let calisDaysCount = 4;
+      
+      const dayButtons = document.querySelectorAll('.day-btn');
+      const runSlider = document.getElementById('run-slider');
+      const runValDisplay = document.getElementById('run-val-display');
+      const runKmDisplay = document.getElementById('run-km-display');
+      const btnRunDec = document.getElementById('btn-run-dec');
+      const btnRunInc = document.getElementById('btn-run-inc');
+      const presetButtons = document.querySelectorAll('.preset-btn');
+      
+      const runFreqDisplay = document.getElementById('run-freq-display');
+      const freqStepperNum = document.getElementById('freq-stepper-num');
+      const runTotalKm = document.getElementById('run-total-km');
+      const btnFreqDec = document.getElementById('btn-freq-dec');
+      const btnFreqInc = document.getElementById('btn-freq-inc');
+      const freqDotsContainer = document.getElementById('freq-dots-container');
+      const cadenceLabel = document.getElementById('cadence-label');
+
+      const calisDaysCountEl = document.getElementById('calis-days-count');
+      const calisStepperNum = document.getElementById('calis-stepper-num');
+      const calisTimeEst = document.getElementById('calis-time-est');
+      const btnCalisDec = document.getElementById('btn-calis-dec');
+      const btnCalisInc = document.getElementById('btn-calis-inc');
+
+      const summaryCombinedText = document.getElementById('summary-combined-text');
+      const summaryBreakdown = document.getElementById('summary-breakdown');
+      const progRunBar = document.getElementById('prog-run-bar');
+      const progCalisBar = document.getElementById('prog-calis-bar');
+      const pctRunVal = document.getElementById('pct-run-val');
+      const pctCalisVal = document.getElementById('pct-calis-val');
+
+      const btnSave = document.getElementById('btn-save-goals');
+      const btnReset = document.getElementById('btn-reset-goals');
+      const saveToast = document.getElementById('save-toast');
+
+      function formatNumber(num) {
+        return num.toLocaleString('pt-BR');
+      }
+
+      function updateRunDistance(val) {
+        runMeters = Math.max(500, Math.min(10000, val));
+        runSlider.value = runMeters;
+        runValDisplay.textContent = formatNumber(runMeters);
+        const km = (runMeters / 1000).toFixed(2).replace('.', ',');
+        runKmDisplay.textContent = `Equivale a ${km} km por treino`;
+        
+        // Update preset buttons state
+        presetButtons.forEach(btn => {
+          const pVal = parseInt(btn.getAttribute('data-preset'), 10);
+          if (pVal === runMeters) {
+            btn.className = "preset-btn active-preset px-3 py-2 rounded-lg bg-secondary/15 border border-secondary text-left active:scale-95 transition-all";
+            btn.querySelector('span:first-child').className = "font-label-sm text-label-sm text-secondary font-bold block";
+            btn.querySelector('span:last-child').className = "font-body-sm text-body-sm text-[11px] text-secondary";
+          } else {
+            btn.className = "preset-btn px-3 py-2 rounded-lg bg-surface-container-high/60 border border-outline-variant/30 text-left hover:border-secondary/50 active:scale-95 transition-all";
+            btn.querySelector('span:first-child').className = "font-label-sm text-label-sm text-on-surface font-bold block";
+            btn.querySelector('span:last-child').className = "font-body-sm text-body-sm text-[11px] text-on-surface-variant";
+          }
+        });
+
+        updateSummary();
+      }
+
+      function updateRunFrequency(freq) {
+        runFrequency = Math.max(1, Math.min(7, freq));
+        runFreqDisplay.textContent = runFrequency;
+        freqStepperNum.textContent = runFrequency;
+        const totalKmWeek = ((runMeters * runFrequency) / 1000).toFixed(1).replace('.', ',');
+        runTotalKm.textContent = `Equivalente a ~${totalKmWeek} km / semana`;
+
+        // Render Dots
+        freqDotsContainer.innerHTML = '';
+        for (let i = 1; i <= 7; i++) {
+          const dot = document.createElement('div');
+          dot.className = `h-2 rounded-full transition-all ${i <= runFrequency ? 'bg-secondary' : 'bg-surface-container-highest'}`;
+          freqDotsContainer.appendChild(dot);
+        }
+
+        if (runFrequency <= 2) {
+          cadenceLabel.textContent = "Leve / Manutenção";
+        } else if (runFrequency <= 4) {
+          cadenceLabel.textContent = "Intercalado (D+1)";
+        } else {
+          cadenceLabel.textContent = "Alta Performance Diária";
+        }
+
+        updateSummary();
+      }
+
+      function updateCalisthenics(count) {
+        calisDaysCount = Math.max(1, Math.min(7, count));
+        calisDaysCountEl.textContent = calisDaysCount;
+        calisStepperNum.textContent = calisDaysCount;
+        const estMinutes = calisDaysCount * 13; // ~13 mins per guided session
+        calisTimeEst.textContent = `${estMinutes} minutos de calistenia guiada`;
+
+        updateSummary();
+      }
+
+      function updateSummary() {
+        const total = runFrequency + calisDaysCount;
+        summaryCombinedText.textContent = `Meta Semanal: ${total} treinos totais`;
+        summaryBreakdown.textContent = `(${runFrequency} Corridas + ${calisDaysCount} Calistenia)`;
+
+        const rPct = Math.round((runFrequency / total) * 100);
+        const cPct = 100 - rPct;
+
+        progRunBar.style.width = `${rPct}%`;
+        progCalisBar.style.width = `${cPct}%`;
+        pctRunVal.textContent = `${rPct}%`;
+        pctCalisVal.textContent = `${cPct}%`;
+
+        const totalKmWeek = ((runMeters * runFrequency) / 1000).toFixed(1).replace('.', ',');
+        runTotalKm.textContent = `Equivalente a ~${totalKmWeek} km / semana`;
+      }
+
+      // Day selector click logic
+      dayButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const isActive = btn.classList.contains('bg-primary');
+          const indicator = btn.querySelector('span:last-child');
+          
+          if (isActive) {
+            btn.classList.remove('bg-primary', 'text-on-primary', 'shadow-sm');
+            btn.classList.add('bg-surface-container-high', 'text-on-surface-variant', 'border', 'border-outline-variant/30');
+            indicator.classList.remove('bg-background');
+            indicator.classList.add('bg-transparent');
+          } else {
+            btn.classList.add('bg-primary', 'text-on-primary', 'shadow-sm');
+            btn.classList.remove('bg-surface-container-high', 'text-on-surface-variant', 'border', 'border-outline-variant/30');
+            indicator.classList.add('bg-background');
+            indicator.classList.remove('bg-transparent');
+          }
+
+          // Count active days
+          const activeDays = document.querySelectorAll('.day-btn.bg-primary').length;
+          updateCalisthenics(activeDays > 0 ? activeDays : 1);
+        });
+      });
+
+      // Slider listener
+      runSlider.addEventListener('input', (e) => {
+        updateRunDistance(parseInt(e.target.value, 10));
+      });
+
+      // Stepper Run
+      btnRunDec.addEventListener('click', () => updateRunDistance(runMeters - 100));
+      btnRunInc.addEventListener('click', () => updateRunDistance(runMeters + 100));
+
+      // Presets
+      presetButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const val = parseInt(btn.getAttribute('data-preset'), 10);
+          updateRunDistance(val);
+        });
+      });
+
+      // Frequency Stepper
+      btnFreqDec.addEventListener('click', () => updateRunFrequency(runFrequency - 1));
+      btnFreqInc.addEventListener('click', () => updateRunFrequency(runFrequency + 1));
+
+      // Calisthenics Stepper
+      btnCalisDec.addEventListener('click', () => {
+        if (calisDaysCount > 1) {
+          updateCalisthenics(calisDaysCount - 1);
+          syncDayButtons(calisDaysCount);
+        }
+      });
+      btnCalisInc.addEventListener('click', () => {
+        if (calisDaysCount < 7) {
+          updateCalisthenics(calisDaysCount + 1);
+          syncDayButtons(calisDaysCount);
+        }
+      });
+
+      function syncDayButtons(count) {
+        dayButtons.forEach((btn, idx) => {
+          const indicator = btn.querySelector('span:last-child');
+          if (idx < count) {
+            btn.className = "day-btn h-12 rounded-xl flex flex-col items-center justify-center font-label-sm text-label-sm font-bold bg-primary text-on-primary shadow-sm active:scale-95 transition-all";
+            indicator.className = "w-1.5 h-1.5 rounded-full bg-background mt-0.5";
+          } else {
+            btn.className = "day-btn h-12 rounded-xl flex flex-col items-center justify-center font-label-sm text-label-sm font-bold bg-surface-container-high text-on-surface-variant border border-outline-variant/30 active:scale-95 transition-all";
+            indicator.className = "w-1.5 h-1.5 rounded-full bg-transparent mt-0.5";
+          }
+        });
+      }
+
+      // Save Local Button (SQLite Feedback)
+      btnSave.addEventListener('click', () => {
+        saveToast.classList.remove('hidden');
+        saveToast.classList.add('flex');
+        
+        btnSave.classList.add('scale-95', 'opacity-90');
+        setTimeout(() => {
+          btnSave.classList.remove('scale-95', 'opacity-90');
+        }, 150);
+
+        setTimeout(() => {
+          saveToast.classList.add('hidden');
+          saveToast.classList.remove('flex');
+        }, 4000);
+      });
+
+      // Reset Defaults
+      btnReset.addEventListener('click', () => {
+        updateRunDistance(1600);
+        updateRunFrequency(3);
+        updateCalisthenics(4);
+        syncDayButtons(4);
+      });
+
+      // Initialize defaults
+      updateRunDistance(1600);
+      updateRunFrequency(3);
+      updateCalisthenics(4);
+    });
+  </script>
+</body></html>

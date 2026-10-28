@@ -1,0 +1,92 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="400dp"
+    android:height="260dp"
+    android:viewportWidth="400"
+    android:viewportHeight="260">
+
+    <!-- Studio white background -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M0,0h400v260h-400z" />
+
+    <!-- Subtle floor mat shadow -->
+    <path
+        android:fillColor="#E2E8F0"
+        android:pathData="M40,188 L360,188 A8,8 0 0,1 368,196 L368,200 A8,8 0 0,1 360,208 L40,208 A8,8 0 0,1 32,200 L32,196 A8,8 0 0,1 40,188 Z" />
+
+    <!-- Exercise Mat (Cyan/Slate) -->
+    <path
+        android:fillColor="#0F172A"
+        android:pathData="M48,184 L352,184 L352,194 L48,194 Z" />
+
+    <!-- Back Extension / Pull Arrows (Neon Green & Cyan) -->
+    <path
+        android:strokeColor="#00E676"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:pathData="M95,112 C95,94 110,84 128,84" />
+    <path
+        android:fillColor="#00E676"
+        android:pathData="M124,77 L136,84 L124,91 Z" />
+
+    <path
+        android:strokeColor="#00E5FF"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:pathData="M210,98 L175,98" />
+    <path
+        android:fillColor="#00E5FF"
+        android:pathData="M180,91 L168,98 L180,105 Z" />
+
+    <!-- Athlete Legs Elevated in Prone Superman Extension -->
+    <path
+        android:strokeColor="#1E293B"
+        android:strokeWidth="16"
+        android:strokeLineCap="round"
+        android:pathData="M225,168 L305,146 L348,136" />
+    <!-- Athletic Shoe -->
+    <path
+        android:fillColor="#00E676"
+        android:pathData="M344,126 L362,130 L358,148 L342,144 Z" />
+
+    <!-- Athlete Shorts -->
+    <path
+        android:fillColor="#0284C7"
+        android:pathData="M196,156 L242,154 L246,176 L196,178 Z" />
+
+    <!-- Athlete Torso Arched Up (Hyperextension / Dorsal Activation) -->
+    <path
+        android:strokeColor="#0F172A"
+        android:strokeWidth="22"
+        android:strokeLineCap="round"
+        android:pathData="M204,166 C175,162 150,146 126,126" />
+
+    <!-- Highlighted Back / Latissimus & Rhomboid Muscle Activation Zone -->
+    <path
+        android:strokeColor="#00E676"
+        android:strokeWidth="8"
+        android:strokeLineCap="round"
+        android:pathData="M188,154 C168,148 150,138 134,124" />
+
+    <!-- Athlete Head & Neck (Neutral cervical alignment looking slightly down/forward) -->
+    <path
+        android:fillColor="#F59E0B"
+        android:pathData="M110,112 m-14,0 a14,14 0 1,0 28,0 a14,14 0 1,0 -28,0" />
+
+    <!-- Athlete Arm in W-Pull (Scapular Retraction / Back Pull) -->
+    <path
+        android:strokeColor="#334155"
+        android:strokeWidth="12"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M134,126 L158,108 L124,96" />
+
+    <!-- Label Badge inside studio illustration -->
+    <path
+        android:fillColor="#0F172A"
+        android:pathData="M135,28 L265,28 A12,12 0 0,1 277,40 L277,56 A12,12 0 0,1 265,68 L135,68 A12,12 0 0,1 123,56 L123,40 A12,12 0 0,1 135,28 Z" />
+    <path
+        android:strokeColor="#00E676"
+        android:strokeWidth="3"
+        android:pathData="M145,48 L255,48" />
+</vector>
